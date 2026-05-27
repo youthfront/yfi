@@ -987,146 +987,137 @@ section { border-bottom: 1px solid var(--border); }
      All mock data below mirrors the exact Supabase row shape.
 ============================================= -->
 <script>
-// ─── SUPABASE CREDENTIALS ─── fill these when ready
-const SUPABASE_URL = '';
-const SUPABASE_ANON_KEY = '';
+// ================================================================
+// SUPABASE — LIVE
+// Project: anzeuwhetgqvavbjpuxd
+// ================================================================
+const SUPABASE_URL      = 'https://anzeuwhetgqvavbjpuxd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuemV1d2hldGdxdmF2YmpwdXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NjM5MjgsImV4cCI6MjA5NTQzOTkyOH0.46MCQ8h2D-poRKlx_G5NJlfOqzB7I4IoPZC2Q684mK0';
 
-// ─── FLAG: set to true when credentials are filled ───
-const USE_SUPABASE = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let supabaseClient = null;
-if (USE_SUPABASE) {
-  supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-}
+// ================================================================
+// TICKER CONTENT — static, not in DB
+// ================================================================
+const TICKER_1 = [
+  { text: 'Speak Up Or Step Aside' },
+  { text: 'Your silence is also a vote' },
+  { text: 'Accountability is not optional' },
+];
+const TICKER_2 = [
+  'Liberty','Justice','Dissent','Dignity','Truth','Equity','Courage','Rights','Voice','Reform'
+];
 
-// =============================================
-// MOCK DATA — same shape as Supabase rows
-// When live: replace each getMock*() with
-// supabaseClient.from('table').select(...).then(r => r.data)
-// =============================================
-
-const MOCK = {
-  demands: [
-    { id:1, number:'01', text:'End contractual hiring in government jobs. Permanence is dignity.', active:true },
-    { id:2, number:'02', text:'Climate policy written by people who will live with it.', active:true },
-    { id:3, number:'03', text:'Derecognise any university that criminalises dissent.', active:true },
-    { id:4, number:'04', text:'A press that is free — or called out loudly when it is not.', active:true },
-    { id:5, number:'05', text:'Mental health is infrastructure. Fund it like roads.', active:true },
-  ],
-  demands_updated: 'May 2026',
-
-  articles: [
-    { id:1, title:'The Internship Was Unpaid. So Was the Silence That Followed.', author:'Priya Nair', city:'Kochi', pull_quote:'We dressed it up as opportunity. It was extraction. And we thanked them for it.', published_at:'May 2026', is_editors_pick:true, published:true },
-    { id:2, title:'CUET Didn\'t Democratise Admissions. It Centralised Who Gets to Fail.', author:'Rohan Mehta', city:'Mumbai', pull_quote:null, published_at:'Dec 2024', is_editors_pick:false, published:true },
-    { id:3, title:'What Happens to a Movement When Its Leaders Graduate?', author:'Anjali Sharma', city:'Jaipur', pull_quote:null, published_at:'Dec 2024', is_editors_pick:false, published:true },
-    { id:4, title:'The Climate Report Said Alarming. The Policy Said Next Term.', author:'Siddharth K.', city:'Hyderabad', pull_quote:null, published_at:'May 2026', is_editors_pick:false, published:true },
-  ],
-
-  hot_takes: [
-    { id:1, text:'We keep electing people who went to school in the 70s to decide what we study in 2026.', author:'Riya', city:'Bengaluru', published:true },
-    { id:2, text:'Internships that pay in experience are unpaid labour with better branding. We\'ve normalised it. That\'s the problem.', author:'Anonymous', city:'Delhi', published:true },
-    { id:3, text:'Voting at 18 and being called too young to understand politics at 22 is a specific kind of insult.', author:'Kabir', city:'Lucknow', published:true },
-  ],
-
-  petition: { id:1, title:'Restore Student Union Elections in All Central Universities — Immediately.', target:25000, active:true },
-  petition_count: 11847,
-
-  records: [
-    { id:1, fact:'India ranked 159 out of 180 countries on the Press Freedom Index. The decline has been consistent for five years.', source:'RSF World Press Freedom Index', source_year:'2024', active:true },
-    { id:2, fact:'42% of engineering graduates remain unemployed or underemployed within one year of passing out.', source:'CMIE Employment Data', source_year:'2023', active:true },
-    { id:3, fact:'Zero student union elections have been held in Delhi University since the 2019 academic year.', source:'DU Academic Records — Verified', source_year:'2024', active:true },
-    { id:4, fact:'India spends 0.05% of GDP on mental health. The global average is 2.8%. This is a choice, not an oversight.', source:'WHO Mental Health Atlas', source_year:'2023', active:true },
-    { id:5, fact:'Over 1.3 crore youth enter the Indian workforce every year. Formal job creation in 2023: under 30 lakh.', source:'Economic Survey of India', source_year:'2023–24', active:true },
-  ],
-
-  stats: [
-    { id:1, label:'Signatures collected', value:'12,000+', display_order:1 },
-    { id:2, label:'Articles published', value:'84', display_order:2 },
-    { id:3, label:'Cities represented', value:'41', display_order:3 },
-    { id:4, label:'Demand: be heard', value:'1', display_order:4 },
-  ],
-
-  ticker_1: [
-    { id:1, text:'Seak Up OR Step Aside', ticker_slot:1, active:true },
-    { id:2, text:'Your silence is also a vote', ticker_slot:1, active:true },
-    { id:3, text:'Accountability is not optional', ticker_slot:1, active:true },
-  ],
-  ticker_2: [
-    'Liberty','Justice','Dissent','Dignity','Truth','Equity','Courage','Rights','Voice','Reform'
-  ],
-};
-
-// =============================================
-// DATA FETCHERS
-// Swap each mock return for a Supabase call when live
-// =============================================
+// ================================================================
+// DATA FETCHERS — all live Supabase
+// ================================================================
 
 async function fetchDemands() {
-  if (USE_SUPABASE) {
-    const { data } = await supabaseClient.from('demands').select('*').eq('active',true).order('number');
-    return data;
-  }
-  return MOCK.demands;
-}
-async function fetchArticles() {
-  if (USE_SUPABASE) {
-    const { data } = await supabaseClient.from('articles').select('*').eq('published',true).order('published_at',{ascending:false});
-    return data;
-  }
-  return MOCK.articles;
-}
-async function fetchHotTakes() {
-  if (USE_SUPABASE) {
-    const { data } = await supabaseClient.from('hot_takes').select('*').eq('published',true).limit(3);
-    return data;
-  }
-  return MOCK.hot_takes;
-}
-async function fetchPetition() {
-  if (USE_SUPABASE) {
-    const { data } = await supabaseClient.from('petitions').select('*').eq('active',true).single();
-    const { count } = await supabaseClient.from('petition_sigs').select('*',{count:'exact',head:true}).eq('petition_id',data.id);
-    return { petition: data, count };
-  }
-  return { petition: MOCK.petition, count: MOCK.petition_count };
-}
-async function fetchRecords() {
-  if (USE_SUPABASE) {
-    const { data } = await supabaseClient.from('records').select('*').eq('active',true).order('id');
-    return data;
-  }
-  return MOCK.records;
-}
-async function fetchStats() {
-  if (USE_SUPABASE) {
-    const { data } = await supabaseClient.from('stats').select('*').order('display_order');
-    return data;
-  }
-  return MOCK.stats;
+  const { data, error } = await sb
+    .from('demands')
+    .select('*')
+    .eq('active', true)
+    .order('number');
+  if (error) throw error;
+  return data;
 }
 
-// =============================================
+async function fetchDemandsUpdated() {
+  const { data, error } = await sb
+    .from('site_config')
+    .select('value')
+    .eq('key', 'demands_updated')
+    .single();
+  if (error) return 'January 2025';
+  return data.value;
+}
+
+async function fetchArticles() {
+  const { data, error } = await sb
+    .from('articles')
+    .select('*')
+    .eq('published', true)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
+async function fetchHotTakes() {
+  const { data, error } = await sb
+    .from('hot_takes')
+    .select('*')
+    .eq('published', true)
+    .order('created_at', { ascending: false })
+    .limit(3);
+  if (error) throw error;
+  return data;
+}
+
+async function fetchPetition() {
+  const { data: petition, error } = await sb
+    .from('petitions')
+    .select('*')
+    .eq('active', true)
+    .single();
+  if (error) throw error;
+
+  // use the public view — doesn't expose individual emails
+  const { data: countRow } = await sb
+    .from('petition_counts')
+    .select('signature_count')
+    .eq('petition_id', petition.id)
+    .single();
+
+  return { petition, count: countRow ? Number(countRow.signature_count) : 0 };
+}
+
+async function fetchRecords() {
+  const { data, error } = await sb
+    .from('records')
+    .select('*')
+    .eq('active', true)
+    .order('id');
+  if (error) throw error;
+  return data;
+}
+
+async function fetchStats() {
+  const { data, error } = await sb
+    .from('stats')
+    .select('*')
+    .order('display_order');
+  if (error) throw error;
+  return data;
+}
+
+// ================================================================
 // INSERT FUNCTIONS
-// =============================================
+// ================================================================
 
 async function insertSignature(petition_id, name, email) {
-  if (USE_SUPABASE) {
-    const { error } = await supabaseClient.from('petition_sigs').insert({ petition_id, name, email });
-    if (error) throw error;
+  const { error } = await sb
+    .from('petition_sigs')
+    .insert({ petition_id, name, email });
+  // unique constraint throws if already signed — surface that
+  if (error) {
+    if (error.code === '23505') throw new Error('already_signed');
+    throw error;
   }
-  // mock: just resolve
 }
+
 async function insertMember(name, email, city) {
-  if (USE_SUPABASE) {
-    const { error } = await supabaseClient.from('members').insert({ name, email, city });
-    if (error) throw error;
-  }
+  const { error } = await sb
+    .from('members')
+    .insert({ name, email, city });
+  // unique email — silently ignore duplicates
+  if (error && error.code !== '23505') throw error;
 }
+
 async function insertSubmission(name, email, content) {
-  if (USE_SUPABASE) {
-    const { error } = await supabaseClient.from('submissions').insert({ name, email, content, status:'pending' });
-    if (error) throw error;
-  }
+  const { error } = await sb
+    .from('submissions')
+    .insert({ name, email, content, status: 'pending' });
+  if (error) throw error;
 }
 </script>
 
@@ -1493,7 +1484,11 @@ async function signPetition() {
     document.getElementById('petName').value = '';
     document.getElementById('petEmail').value = '';
   } catch(e) {
-    msg.textContent = 'Something went wrong. Try again.';
+    if (e.message === 'already_signed') {
+      msg.textContent = 'This email has already signed.';
+    } else {
+      msg.textContent = 'Something went wrong. Try again.';
+    }
     msg.className = 'form-msg err';
   }
 }
@@ -1545,8 +1540,9 @@ async function joinMovement(btn) {
 // ─── INIT: LOAD ALL CONTENT ───
 async function init() {
   try {
-    const [demands, articles, hotTakes, petitionData, records, stats] = await Promise.all([
+    const [demands, demandsUpdated, articles, hotTakes, petitionData, records, stats] = await Promise.all([
       fetchDemands(),
+      fetchDemandsUpdated(),
       fetchArticles(),
       fetchHotTakes(),
       fetchPetition(),
@@ -1554,9 +1550,9 @@ async function init() {
       fetchStats(),
     ]);
 
-    buildTicker1(MOCK.ticker_1);
-    buildTicker2(MOCK.ticker_2);
-    renderDemands(demands);
+    buildTicker1(TICKER_1);
+    buildTicker2(TICKER_2);
+    renderDemands(demands, demandsUpdated);
     renderRecords(records);
     renderArticles(articles);
     renderHotTakes(hotTakes);
