@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouthFront India — Because the Youth Has Words</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Barlow+Condensed:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=IBM+Plex+Mono:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<!-- Supabase JS — dormant until credentials are filled -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+/* =============================================
+   DESIGN TOKENS
+============================================= */
+:root {
+  --bg:         #0D0C0B;
+  --bg-card:    #131110;
+  --bg-tick1:   #1A1714;
+  --bg-tick2:   #0F1A17;
+  --border:     #272320;
+  --border-mid: #3A342E;
+  --muted:      #5A524A;
+  --muted-hi:   #7A6F65;
+  --text:       #EAE4D8;
+  --text-dim:   #B8B0A2;
+  --red:        #C8401A;
+  --red-dim:    #8A2D12;
+  --gold:       #C9992A;
+  --gold-dim:   #7A5C18;
+  --teal:       #3D7268;
+  --teal-bright:#4A8C80;
+
+  --f-display: 'Playfair Display', Georgia, serif;
+  --f-body:    'Barlow Condensed', sans-serif;
+  --f-label:   'Space Mono', monospace;
+  --f-record:  'IBM Plex Mono', monospace;
+
+  /* TYPE SCALE — three levels only */
+  --t-display: clamp(3.5rem, 8vw, 8rem);
+  --t-head:    clamp(1.6rem, 3vw, 2.6rem);
+  --t-body:    1.05rem;
+  --t-label:   0.72rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: var(--t-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* GRAIN */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  width: 200%; height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.028;
+  pointer-events: none;
+  z-index: 9999;
+  animation: grain 9s steps(8) infinite;
+}
+@keyframes grain {
+  0%{transform:translate(0,0) rotate(0deg)}
+  12%{transform:translate(-2%,-3%) rotate(0.5deg)}
+  25%{transform:translate(3%,1%) rotate(-0.3deg)}
+  37%{transform:translate(-1%,4%) rotate(0.2deg)}
+  50%{transform:translate(4%,-2%) rotate(-0.5deg)}
+  62%{transform:translate(-3%,2%) rotate(0.4deg)}
+  75%{transform:translate(2%,-4%) rotate(-0.2deg)}
+  87%{transform:translate(-4%,1%) rotate(0.3deg)}
+  100%{transform:translate(0,0) rotate(0deg)}
+}
+
+/* =============================================
+   NAV
+============================================= */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 3rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(13,12,11,0.94);
+  backdrop-filter: blur(12px);
+}
+.nav-logo {
+  font-family: var(--f-label);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  color: var(--text);
+  text-transform: uppercase;
+}
+.nav-logo b { color: var(--red); font-weight: 700; }
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  list-style: none;
+}
+.nav-links a {
+  font-family: var(--f-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  font-family: var(--f-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: var(--red);
+  padding: 0.55rem 1.3rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.nav-cta:hover { background: #a83416; }
+
+/* =============================================
+   HERO
+============================================= */
+#hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 0 3rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 5rem;
+  padding-top: 8rem;
+}
+.hero-meta {
+  font-family: var(--f-label);
+  font-size: var(--t-label);
+  letter-spacing: 0.22em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.hero-meta::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--red);
+}
+.hero-name {
+  font-family: var(--f-display);
+  font-size: var(--t-display);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 3rem;
+}
+.hero-name .accent { color: var(--red); font-style: italic; }
+.hero-divider {
+  width: 60px;
+  height: 2px;
+  background: var(--red);
+  margin-bottom: 2.5rem;
+}
+.hero-tagline-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  max-width: 640px;
+}
+.hero-tagline {
+  font-family: var(--f-display);
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-style: italic;
+  font-weight: 700;
+  color: var(--text-dim);
+  line-height: 1.4;
+  min-height: 2.2em;
+}
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.9em;
+  background: var(--red);
+  vertical-align: middle;
+  margin-left: 3px;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.hero-bottom {
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 0;
+}
+.hero-scroll-hint {
+  font-family: var(--f-label);
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.hero-scroll-hint::before {
+  content: '';
+  width: 36px; height: 1px;
+  background: var(--muted);
+}
+.hero-email {
+  font-family: var(--f-label);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-decoration: none;
+  text-transform: lowercase;
+  transition: color 0.2s;
+}
+.hero-email:hover { color: var(--text-dim); }
+
+/* =============================================
+   TICKERS
+============================================= */
+.ticker-band {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.ticker-band-1 {
+  height: 64px;
+  background: var(--bg-tick1);
+}
+.ticker-band-2 {
+  height: 52px;
+  background: var(--bg-tick2);
+}
+.ticker-track {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  will-change: transform;
+}
+.ticker-track-1 { animation: scroll1 55s linear infinite; }
+.ticker-track-2 { animation: scroll2 28s linear infinite; }
+.ticker-band:hover .ticker-track { animation-play-state: paused; }
+@keyframes scroll1 { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+@keyframes scroll2 { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+.ticker-item-1 {
+  font-family: var(--f-label);
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 0 3rem;
+}
+.ticker-sep-1 { color: var(--red); font-size: 0.5rem; }
+
+.ticker-item-2 {
+  font-family: var(--f-display);
+  font-size: 1rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--muted-hi);
+  letter-spacing: 0.05em;
+  padding: 0 2rem;
+}
+.ticker-sep-2 { color: var(--border-mid); font-size: 0.7rem; }
+
+/* =============================================
+   SECTION BASE
+============================================= */
+section { border-bottom: 1px solid var(--border); }
+.section-wrap { padding: 5rem 3rem; }
+
+.sec-head {
+  font-family: var(--f-label);
+  font-size: var(--t-label);
+  letter-spacing: 0.22em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 3.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.sec-head::before {
+  content: '';
+  width: 20px; height: 1px;
+  background: var(--red);
+  flex-shrink: 0;
+}
+
+.sec-title {
+  font-family: var(--f-display);
+  font-size: var(--t-head);
+  font-weight: 900;
+  line-height: 1.05;
+  color: var(--text);
+}
+
+/* =============================================
+   DEMANDS
+============================================= */
+#demands .sec-title {
+  margin-bottom: 0.6rem;
+}
+.demands-updated {
+  font-family: var(--f-label);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  color: var(--teal);
+  text-transform: uppercase;
+  margin-bottom: 4rem;
+  opacity: 0.8;
+}
+#demands-container { border-top: 1px solid var(--border); }
+
+.demand-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 2.4rem 0;
+  opacity: 0;
+  transform: translateX(-24px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+  cursor: default;
+}
+.demand-row.visible { opacity: 1; transform: translateX(0); }
+.demand-row:hover .demand-num { color: var(--red); }
+
+.demand-num {
+  font-family: var(--f-display);
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+  padding-top: 0.15rem;
+  transition: color 0.25s;
+  opacity: 0;
+  transition: opacity 0.4s ease 0.25s, color 0.25s;
+  user-select: none;
+}
+.demand-row.visible .demand-num { opacity: 1; }
+
+.demand-text {
+  font-family: var(--f-display);
+  font-size: clamp(1.2rem, 2.2vw, 1.8rem);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text);
+  padding-right: 4rem;
+  align-self: center;
+}
+
+/* =============================================
+   ON THE RECORD
+============================================= */
+#record { background: var(--bg-card); }
+.record-intro {
+  font-family: var(--f-record);
+  font-size: 0.82rem;
+  color: var(--muted-hi);
+  font-style: italic;
+  margin-bottom: 3rem;
+  margin-top: -1.5rem;
+}
+#record-container { border-top: 1px solid var(--border); }
+
+.record-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: start;
+  padding: 1.8rem 0;
+  border-bottom: 1px solid var(--border);
+  border-left: 2px solid transparent;
+  padding-left: 1.2rem;
+  margin-left: -1.2rem;
+  transition: border-left-color 0.3s;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.45s ease, transform 0.45s ease, border-left-color 0.3s;
+}
+.record-row.visible { opacity: 1; transform: translateY(0); }
+.record-row:hover { border-left-color: var(--gold-dim); }
+
+.record-fact {
+  font-family: var(--f-record);
+  font-size: 0.92rem;
+  color: var(--text);
+  line-height: 1.65;
+}
+.record-source {
+  font-family: var(--f-label);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: var(--teal-bright);
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding-top: 0.2rem;
+  text-align: right;
+}
+
+/* =============================================
+   DISPATCHES
+============================================= */
+.editors-pick-label {
+  font-family: var(--f-label);
+  font-size: var(--t-label);
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 1.8rem;
+}
+
+/* Editor's pick — full width, editorial */
+.pick-card {
+  padding: 3rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  background: var(--bg-card);
+  margin-bottom: 3.5rem;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.pick-card.visible { opacity: 1; transform: translateY(0); }
+
+.pick-title {
+  font-family: var(--f-display);
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+}
+.pick-pull {
+  font-family: var(--f-display);
+  font-size: clamp(1rem, 1.5vw, 1.3rem);
+  font-style: italic;
+  color: var(--muted-hi);
+  line-height: 1.5;
+  max-width: 680px;
+  margin-bottom: 2rem;
+  padding-left: 1.2rem;
+  border-left: 1px solid var(--border-mid);
+}
+.pick-meta {
+  font-family: var(--f-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.pick-meta b { color: var(--text-dim); font-weight: 700; }
+
+/* Article list — numbered rows */
+.articles-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 140px;
+  gap: 1.5rem;
+  padding: 0.6rem 0 0.8rem;
+  border-bottom: 1px solid var(--border-mid);
+  margin-bottom: 0;
+}
+.articles-header span {
+  font-family: var(--f-label);
+  font-size: 0.56rem;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+#articles-container { border-bottom: 1px solid var(--border); }
+
+.article-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 140px;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.4rem 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease, background 0.2s;
+}
+.article-row.visible { opacity: 1; transform: translateY(0); }
+.article-row:hover { background: var(--bg-card); margin: 0 -3rem; padding: 1.4rem 3rem; }
+
+.article-num {
+  font-family: var(--f-label);
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+.article-title {
+  font-family: var(--f-display);
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.25;
+}
+.article-byline {
+  font-family: var(--f-label);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+  text-align: right;
+}
+.article-byline b { color: var(--text-dim); }
+
+.archive-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2.5rem;
+  font-family: var(--f-label);
+  font-size: var(--t-label);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-mid);
+  padding-bottom: 3px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.archive-link:hover { color: var(--text); border-color: var(--text-dim); }
+
+/* =============================================
+   HOT TAKES
+============================================= */
+#hottakes { background: var(--bg-card); }
+#hottakes-container { margin-top: 2rem; }
+
+.take-row {
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--border);
+  border-left: 2px solid var(--red);
+  padding-left: 2rem;
+  margin-left: -3rem;
+  padding-right: 3rem;
+  opacity: 0;
+  transform: translateX(-16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.take-row.visible { opacity: 1; transform: translateX(0); }
+
+.take-text {
+  font-family: var(--f-display);
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-style: italic;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+  margin-bottom: 1rem;
+}
+.take-author {
+  font-family: var(--f-label);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.take-author b { color: var(--red); }
+
+/* =============================================
+   PETITION
+============================================= */
+#petition { position: relative; }
+.petition-title {
+  font-family: var(--f-display);
+  font-size: clamp(1.3rem, 2.2vw, 1.9rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  max-width: 680px;
+  margin-bottom: 3rem;
+  border-left: 2px solid var(--red);
+  padding-left: 1.5rem;
+}
+.counter-block { margin-bottom: 2.5rem; }
+.counter-num {
+  display: block;
+  font-family: var(--f-display);
+  font-size: clamp(4.5rem, 9vw, 8rem);
+  font-weight: 900;
+  color: var(--red);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+.counter-sub {
+  font-family: var(--f-label);
+  font-size: var(--t-label);
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.counter-goal { color: var(--muted-hi); }
+.progress-bar {
+  width: 100%;
+  max-width: 480px;
+  height: 2px;
+  background: var(--border-mid);
+  margin: 1.5rem 0 2.5rem;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--red);
+  width: 0%;
+  transition: width 2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.petition-form {
+  display: flex;
+  gap: 0;
+  max-width: 480px;
+  border: 1px solid var(--border-mid);
+}
+.petition-form input {
+  flex: 1;
+  background: var(--bg-card);
+  border: none;
+  border-right: 1px solid var(--border-mid);
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.9rem 1.1rem;
+  outline: none;
+  transition: background 0.2s;
+}
+.petition-form input:focus { background: #181412; }
+.petition-form input::placeholder { color: var(--muted); }
+.btn-sign {
+  background: var(--red);
+  color: var(--text);
+  border: none;
+  padding: 0.9rem 1.6rem;
+  font-family: var(--f-label);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+.btn-sign:hover { background: #a83416; }
+.form-msg {
+  font-family: var(--f-label);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 1rem;
+  min-height: 1.2em;
+  transition: opacity 0.3s;
+}
+.form-msg.ok { color: var(--teal-bright); }
+.form-msg.err { color: var(--red); }
+
+/* =============================================
+   BY THE NUMBERS
+============================================= */
+#numbers { background: var(--bg-card); }
+#stats-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--border);
+  margin-top: 3rem;
+}
+.stat-cell {
+  padding: 2.8rem 2rem;
+  border-right: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.stat-cell:last-child { border-right: none; }
+.stat-cell.visible { opacity: 1; transform: translateY(0); }
+.stat-num {
+  display: block;
+  font-family: var(--f-display);
+  font-size: clamp(2rem, 3.5vw, 3rem);
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 0.7rem;
+}
+.stat-label {
+  display: block;
+  font-family: var(--f-label);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+/* =============================================
+   SUBMIT
+============================================= */
+.submit-callout {
+  font-family: var(--f-display);
+  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  max-width: 700px;
+}
+.submit-sub {
+  font-family: var(--f-body);
+  font-size: 1rem;
+  color: var(--muted-hi);
+  line-height: 1.7;
+  max-width: 520px;
+  margin-bottom: 3rem;
+}
+.submit-form {
+  max-width: 640px;
+  border: 1px solid var(--border-mid);
+  background: var(--bg-card);
+}
+.submit-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+.submit-form input,
+.submit-form textarea {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 1rem 1.2rem;
+  outline: none;
+  width: 100%;
+  resize: none;
+  transition: background 0.2s;
+  border-right: 1px solid var(--border);
+}
+.submit-form input:last-child,
+.submit-form textarea { border-right: none; }
+.submit-form input::placeholder,
+.submit-form textarea::placeholder { color: var(--muted); }
+.submit-form input:focus,
+.submit-form textarea:focus { background: rgba(255,255,255,0.02); }
+.submit-form textarea {
+  min-height: 180px;
+  display: block;
+  width: 100%;
+  border-right: none;
+  border-bottom: 1px solid var(--border);
+}
+.btn-submit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  padding: 1rem 1.2rem;
+  font-family: var(--f-label);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+.btn-submit:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+.btn-submit .arr { transition: transform 0.2s; }
+.btn-submit:hover .arr { transform: translateX(4px); }
+
+/* =============================================
+   JOIN / FOOTER
+============================================= */
+#join {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0 3rem;
+  border-top: 3px solid var(--red);
+}
+.join-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 7rem 0 5rem;
+}
+.join-tagline {
+  font-family: var(--f-display);
+  font-size: clamp(3.5rem, 9vw, 9rem);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 1.5rem;
+}
+.join-tagline em { color: var(--red); font-style: italic; }
+.join-sub {
+  font-family: var(--f-body);
+  font-size: 1.1rem;
+  color: var(--muted-hi);
+  margin-bottom: 3.5rem;
+  font-style: italic;
+}
+.join-form {
+  display: flex;
+  gap: 0;
+  max-width: 600px;
+  border: 1px solid var(--border-mid);
+}
+.join-form input {
+  flex: 1;
+  min-width: 120px;
+  background: var(--bg-card);
+  border: none;
+  border-right: 1px solid var(--border-mid);
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 1.1rem 1.2rem;
+  outline: none;
+  transition: background 0.2s;
+}
+.join-form input:focus { background: #181412; }
+.join-form input::placeholder { color: var(--muted); }
+.btn-join {
+  background: var(--red);
+  color: var(--text);
+  border: none;
+  padding: 1.1rem 2rem;
+  font-family: var(--f-label);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+.btn-join:hover { background: #a83416; }
+.btn-join.done { background: var(--teal); cursor: default; }
+.join-disclaimer {
+  font-family: var(--f-label);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 1.4rem;
+}
+
+.join-footer-bar {
+  border-top: 1px solid var(--border);
+  padding: 2.5rem 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2rem;
+  align-items: end;
+}
+.footer-col {
+  font-family: var(--f-label);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  line-height: 2.2;
+}
+.footer-col a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--text-dim); }
+.footer-col-center { text-align: center; }
+.footer-col-right { text-align: right; }
+.footer-no-fund {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--border);
+  padding-top: 1.5rem;
+  margin-top: 0.5rem;
+  font-family: var(--f-body);
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* =============================================
+   SCROLL REVEAL UTILITY
+============================================= */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* =============================================
+   LOADING STATE
+============================================= */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--border) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 2px;
+  height: 1.2em;
+  margin-bottom: 0.5rem;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* =============================================
+   RESPONSIVE
+============================================= */
+@media(max-width:900px){
+  nav { padding: 1rem 1.5rem; }
+  .nav-links { display: none; }
+  #hero, .section-wrap, #join { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .demand-row { grid-template-columns: 56px 1fr; }
+  .demand-text { padding-right: 0; }
+  .articles-header, .article-row { grid-template-columns: 32px 1fr; }
+  .articles-header span:last-child,
+  .article-row .article-byline { display: none; }
+  #stats-container { grid-template-columns: 1fr 1fr; }
+  .stat-cell:nth-child(2) { border-right: none; }
+  .stat-cell:nth-child(3) { border-top: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .stat-cell:nth-child(4) { border-top: 1px solid var(--border); border-right: none; }
+  .join-form { flex-wrap: wrap; }
+  .join-form input { border-right: 1px solid var(--border-mid); border-bottom: 1px solid var(--border-mid); }
+  .join-footer-bar { grid-template-columns: 1fr; gap: 0; }
+  .footer-col-center, .footer-col-right { text-align: left; }
+  .take-row { margin-left: -1.5rem; padding-right: 1.5rem; }
+  .article-row:hover { margin: 0 -1.5rem; padding: 1.4rem 1.5rem; }
+  .pick-card { padding: 1.8rem; }
+  .submit-row { grid-template-columns: 1fr; }
+  .submit-form input:first-child { border-bottom: 1px solid var(--border); border-right: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- =============================================
+     SUPABASE CONFIG
+     Fill SUPABASE_URL and SUPABASE_ANON_KEY to go live.
+     All mock data below mirrors the exact Supabase row shape.
+============================================= -->
+<script>
+// ─── SUPABASE CREDENTIALS ─── fill these when ready
+const SUPABASE_URL = '';
+const SUPABASE_ANON_KEY = '';
+
+// ─── FLAG: set to true when credentials are filled ───
+const USE_SUPABASE = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+
+let supabaseClient = null;
+if (USE_SUPABASE) {
+  supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+// =============================================
+// MOCK DATA — same shape as Supabase rows
+// When live: replace each getMock*() with
+// supabaseClient.from('table').select(...).then(r => r.data)
+// =============================================
+
+const MOCK = {
+  demands: [
+    { id:1, number:'01', text:'End contractual hiring in government jobs. Permanence is dignity.', active:true },
+    { id:2, number:'02', text:'Climate policy written by people who will live with it.', active:true },
+    { id:3, number:'03', text:'Derecognise any university that criminalises dissent.', active:true },
+    { id:4, number:'04', text:'A press that is free — or called out loudly when it is not.', active:true },
+    { id:5, number:'05', text:'Mental health is infrastructure. Fund it like roads.', active:true },
+  ],
+  demands_updated: 'May 2026',
+
+  articles: [
+    { id:1, title:'The Internship Was Unpaid. So Was the Silence That Followed.', author:'Priya Nair', city:'Kochi', pull_quote:'We dressed it up as opportunity. It was extraction. And we thanked them for it.', published_at:'May 2026', is_editors_pick:true, published:true },
+    { id:2, title:'CUET Didn\'t Democratise Admissions. It Centralised Who Gets to Fail.', author:'Rohan Mehta', city:'Mumbai', pull_quote:null, published_at:'Dec 2024', is_editors_pick:false, published:true },
+    { id:3, title:'What Happens to a Movement When Its Leaders Graduate?', author:'Anjali Sharma', city:'Jaipur', pull_quote:null, published_at:'Dec 2024', is_editors_pick:false, published:true },
+    { id:4, title:'The Climate Report Said Alarming. The Policy Said Next Term.', author:'Siddharth K.', city:'Hyderabad', pull_quote:null, published_at:'May 2026', is_editors_pick:false, published:true },
+  ],
+
+  hot_takes: [
+    { id:1, text:'We keep electing people who went to school in the 70s to decide what we study in 2026.', author:'Riya', city:'Bengaluru', published:true },
+    { id:2, text:'Internships that pay in experience are unpaid labour with better branding. We\'ve normalised it. That\'s the problem.', author:'Anonymous', city:'Delhi', published:true },
+    { id:3, text:'Voting at 18 and being called too young to understand politics at 22 is a specific kind of insult.', author:'Kabir', city:'Lucknow', published:true },
+  ],
+
+  petition: { id:1, title:'Restore Student Union Elections in All Central Universities — Immediately.', target:25000, active:true },
+  petition_count: 11847,
+
+  records: [
+    { id:1, fact:'India ranked 159 out of 180 countries on the Press Freedom Index. The decline has been consistent for five years.', source:'RSF World Press Freedom Index', source_year:'2024', active:true },
+    { id:2, fact:'42% of engineering graduates remain unemployed or underemployed within one year of passing out.', source:'CMIE Employment Data', source_year:'2023', active:true },
+    { id:3, fact:'Zero student union elections have been held in Delhi University since the 2019 academic year.', source:'DU Academic Records — Verified', source_year:'2024', active:true },
+    { id:4, fact:'India spends 0.05% of GDP on mental health. The global average is 2.8%. This is a choice, not an oversight.', source:'WHO Mental Health Atlas', source_year:'2023', active:true },
+    { id:5, fact:'Over 1.3 crore youth enter the Indian workforce every year. Formal job creation in 2023: under 30 lakh.', source:'Economic Survey of India', source_year:'2023–24', active:true },
+  ],
+
+  stats: [
+    { id:1, label:'Signatures collected', value:'12,000+', display_order:1 },
+    { id:2, label:'Articles published', value:'84', display_order:2 },
+    { id:3, label:'Cities represented', value:'41', display_order:3 },
+    { id:4, label:'Demand: be heard', value:'1', display_order:4 },
+  ],
+
+  ticker_1: [
+    { id:1, text:'Seak Up OR Step Aside', ticker_slot:1, active:true },
+    { id:2, text:'Your silence is also a vote', ticker_slot:1, active:true },
+    { id:3, text:'Accountability is not optional', ticker_slot:1, active:true },
+  ],
+  ticker_2: [
+    'Liberty','Justice','Dissent','Dignity','Truth','Equity','Courage','Rights','Voice','Reform'
+  ],
+};
+
+// =============================================
+// DATA FETCHERS
+// Swap each mock return for a Supabase call when live
+// =============================================
+
+async function fetchDemands() {
+  if (USE_SUPABASE) {
+    const { data } = await supabaseClient.from('demands').select('*').eq('active',true).order('number');
+    return data;
+  }
+  return MOCK.demands;
+}
+async function fetchArticles() {
+  if (USE_SUPABASE) {
+    const { data } = await supabaseClient.from('articles').select('*').eq('published',true).order('published_at',{ascending:false});
+    return data;
+  }
+  return MOCK.articles;
+}
+async function fetchHotTakes() {
+  if (USE_SUPABASE) {
+    const { data } = await supabaseClient.from('hot_takes').select('*').eq('published',true).limit(3);
+    return data;
+  }
+  return MOCK.hot_takes;
+}
+async function fetchPetition() {
+  if (USE_SUPABASE) {
+    const { data } = await supabaseClient.from('petitions').select('*').eq('active',true).single();
+    const { count } = await supabaseClient.from('petition_sigs').select('*',{count:'exact',head:true}).eq('petition_id',data.id);
+    return { petition: data, count };
+  }
+  return { petition: MOCK.petition, count: MOCK.petition_count };
+}
+async function fetchRecords() {
+  if (USE_SUPABASE) {
+    const { data } = await supabaseClient.from('records').select('*').eq('active',true).order('id');
+    return data;
+  }
+  return MOCK.records;
+}
+async function fetchStats() {
+  if (USE_SUPABASE) {
+    const { data } = await supabaseClient.from('stats').select('*').order('display_order');
+    return data;
+  }
+  return MOCK.stats;
+}
+
+// =============================================
+// INSERT FUNCTIONS
+// =============================================
+
+async function insertSignature(petition_id, name, email) {
+  if (USE_SUPABASE) {
+    const { error } = await supabaseClient.from('petition_sigs').insert({ petition_id, name, email });
+    if (error) throw error;
+  }
+  // mock: just resolve
+}
+async function insertMember(name, email, city) {
+  if (USE_SUPABASE) {
+    const { error } = await supabaseClient.from('members').insert({ name, email, city });
+    if (error) throw error;
+  }
+}
+async function insertSubmission(name, email, content) {
+  if (USE_SUPABASE) {
+    const { error } = await supabaseClient.from('submissions').insert({ name, email, content, status:'pending' });
+    if (error) throw error;
+  }
+}
+</script>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Youth<b>Front</b> India</div>
+  <ul class="nav-links">
+    <li><a href="#demands">Demands</a></li>
+    <li><a href="#petition">Petitions</a></li>
+    <li><a href="#submit">Write</a></li>
+  </ul>
+  <a href="#join" class="nav-cta">Join →</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-inner">
+    <p class="hero-meta">Est. 2026 &nbsp;·&nbsp; India</p>
+    <h1 class="hero-name">Youth<br><span class="accent">Front.</span></h1>
+    <div class="hero-divider"></div>
+    <div class="hero-tagline-wrap">
+      <p class="hero-tagline" id="typewriter"><span class="cursor"></span></p>
+    </div>
+  </div>
+  <div class="hero-bottom">
+    <span class="hero-scroll-hint">Scroll</span>
+    <a href="mailto:youthfront.in@gmail.com" class="hero-email">youthfront.in@gmail.com</a>
+  </div>
+</section>
+
+<!-- TICKER 1 — punchlines -->
+<div class="ticker-band ticker-band-1" id="ticker-1" aria-hidden="true">
+  <div class="ticker-track ticker-track-1" id="ticker1-track"></div>
+</div>
+
+<!-- DEMANDS -->
+<section id="demands">
+  <div class="section-wrap">
+    <p class="sec-head">What We Demand</p>
+    <h2 class="sec-title reveal">Five demands.<br>Non-negotiable.</h2>
+    <p class="demands-updated reveal" id="demands-updated"></p>
+    <div id="demands-container"></div>
+  </div>
+</section>
+
+<!-- TICKER 2 — single words -->
+<div class="ticker-band ticker-band-2" id="ticker-2" aria-hidden="true">
+  <div class="ticker-track ticker-track-2" id="ticker2-track"></div>
+</div>
+
+<!-- ON THE RECORD -->
+<section id="record">
+  <div class="section-wrap">
+    <p class="sec-head">On The Record</p>
+    <h2 class="sec-title reveal">Facts. Sourced.<br>Undeniable.</h2>
+    <p class="record-intro reveal">...........................</p>
+    <div id="record-container"></div>
+  </div>
+</section>
+
+<!-- DISPATCHES -->
+<section id="dispatches">
+  <div class="section-wrap">
+    <p class="sec-head">Dispatches</p>
+    <h2 class="sec-title reveal">Written by Indians<br>under 30.</h2>
+    <p class="reveal" style="font-family:var(--f-body);color:var(--muted-hi);font-size:1rem;font-style:italic;margin-bottom:3.5rem">Edited by us. No filter except quality.</p>
+
+    <p class="editors-pick-label reveal">— Editor's Pick</p>
+    <div id="pick-container"></div>
+
+    <div class="articles-header reveal">
+      <span>#</span>
+      <span>Article</span>
+      <span style="text-align:right">Author · City</span>
+    </div>
+    <div id="articles-container"></div>
+    <a href="#" class="archive-link reveal">Read the Archive →</a>
+  </div>
+</section>
+
+<!-- HOT TAKES -->
+<section id="hottakes">
+  <div class="section-wrap">
+    <p class="sec-head">Hot Takes</p>
+    <h2 class="sec-title reveal">What we'd say<br>if we stopped<br>being polite.</h2>
+    <div id="hottakes-container"></div>
+  </div>
+</section>
+
+<!-- PETITION -->
+<section id="petition">
+  <div class="section-wrap">
+    <p class="sec-head">Sign This</p>
+    <h2 class="sec-title reveal">Active Petition.</h2>
+    <p class="petition-title reveal" id="petition-title"></p>
+    <div class="counter-block">
+      <span class="counter-num" id="counter">0</span>
+      <div class="counter-sub">
+        <span>have signed</span>
+        <span class="counter-goal" id="counter-goal"></span>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="petition-form">
+      <input type="text" placeholder="Name" id="petName">
+      <input type="email" placeholder="Email" id="petEmail">
+      <button class="btn-sign" onclick="signPetition()">Sign →</button>
+    </div>
+    <p class="form-msg" id="petMsg"></p>
+  </div>
+</section>
+
+<!-- BY THE NUMBERS -->
+<section id="numbers">
+  <div class="section-wrap">
+    <p class="sec-head">By The Numbers</p>
+    <h2 class="sec-title reveal">Proof of pulse.</h2>
+    <div id="stats-container"></div>
+  </div>
+</section>
+
+<!-- SUBMIT -->
+<section id="submit">
+  <div class="section-wrap">
+    <p class="sec-head">Say Something</p>
+    <p class="submit-callout reveal">Got something to say?<br>We're listening.</p>
+    <p class="submit-sub reveal">Write it. Send it. If it holds up, it goes up.<br>We don't publish everything. We publish what matters.</p>
+    <div class="submit-form reveal">
+      <div class="submit-row">
+        <input type="text" placeholder="Your name" id="subName">
+        <input type="email" placeholder="Your email" id="subEmail">
+      </div>
+      <textarea id="subContent" placeholder="Your piece, take, or pitch. Make it real."></textarea>
+      <button class="btn-submit" onclick="submitPiece()">
+        <span>Submit your piece</span>
+        <span class="arr">→</span>
+      </button>
+    </div>
+    <p class="form-msg" id="subMsg" style="margin-top:1rem"></p>
+  </div>
+</section>
+
+<!-- JOIN / FOOTER -->
+<section id="join">
+  <div class="join-inner">
+    <h2 class="join-tagline">Because the<br>Youth has <em>words.</em></h2>
+    <p class="join-sub">Leave your mark. Write your line.</p>
+    <div class="join-form">
+      <input type="text" placeholder="Name" id="joinName">
+      <input type="email" placeholder="Email" id="joinEmail">
+      <input type="text" placeholder="City" id="joinCity">
+      <button class="btn-join" onclick="joinMovement(this)" id="joinBtn">I'M IN →</button>
+    </div>
+    <p class="join-disclaimer">The movement doesn't need your applause. It needs your name.</p>
+  </div>
+  <div class="join-footer-bar">
+    <div class="footer-col">
+      YouthFront India · New Delhi<br>
+      <a href="mailto:youthfront.in@gmail.com">youthfront.in@gmail.com</a><br>
+      <a href="#">Instagram</a> &nbsp;·&nbsp; <a href="#">X</a> &nbsp;·&nbsp; <a href="#">Discord</a>
+    </div>
+    <div class="footer-col footer-col-center">
+      youthfrontindia.pages.dev
+    </div>
+    <div class="footer-col footer-col-right">
+      © YouthFront India 2026<br>
+      Est. New Delhi, India
+    </div>
+    <p class="footer-no-fund">independent.</p>
+  </div>
+</section>
+
+<!-- =============================================
+     RENDER + LOGIC
+============================================= -->
+<script>
+// ─── TYPEWRITER ───
+const TW_LINES = [
+  'Because the Youth has words.',
+  'Done waiting for permission.',
+  'The system is not broken. it is working as designed.'
+];
+let tl = 0, tc = 0, tDel = false;
+const twEl = document.getElementById('typewriter');
+function typeStep() {
+  const cur = TW_LINES[tl];
+  if (!tDel) {
+    tc++;
+    twEl.innerHTML = cur.slice(0, tc) + '<span class="cursor"></span>';
+    if (tc === cur.length) { tDel = true; setTimeout(typeStep, 2400); return; }
+    setTimeout(typeStep, 52);
+  } else {
+    tc--;
+    twEl.innerHTML = cur.slice(0, tc) + '<span class="cursor"></span>';
+    if (tc === 0) { tDel = false; tl = (tl + 1) % TW_LINES.length; setTimeout(typeStep, 380); return; }
+    setTimeout(typeStep, 26);
+  }
+}
+setTimeout(typeStep, 900);
+
+// ─── TICKERS ───
+function buildTicker1(items) {
+  const track = document.getElementById('ticker1-track');
+  const doubled = [...items, ...items];
+  track.innerHTML = doubled.map((item, i) =>
+    `<span class="ticker-item-1">${item.text.toUpperCase()}</span>` +
+    (i < doubled.length - 1 ? '<span class="ticker-sep-1">◆</span>' : '')
+  ).join('');
+}
+function buildTicker2(words) {
+  const track = document.getElementById('ticker2-track');
+  const doubled = [...words, ...words];
+  track.innerHTML = doubled.map((w, i) =>
+    `<span class="ticker-item-2">${w}</span>` +
+    (i < doubled.length - 1 ? '<span class="ticker-sep-2">·</span>' : '')
+  ).join('');
+}
+
+// ─── RENDER DEMANDS ───
+function renderDemands(demands, updated) {
+  document.getElementById('demands-updated').textContent =
+    `Last updated: ${updated || MOCK.demands_updated}. These change when the ground changes.`;
+  const c = document.getElementById('demands-container');
+  c.innerHTML = demands.map(d => `
+    <div class="demand-row">
+      <span class="demand-num">${d.number}</span>
+      <span class="demand-text">${d.text}</span>
+    </div>
+  `).join('');
+  observeAll(c.querySelectorAll('.demand-row'));
+}
+
+// ─── RENDER RECORDS ───
+function renderRecords(records) {
+  const c = document.getElementById('record-container');
+  c.innerHTML = records.map(r => `
+    <div class="record-row">
+      <p class="record-fact">${r.fact}</p>
+      <p class="record-source">${r.source}<br>${r.source_year}</p>
+    </div>
+  `).join('');
+  observeAll(c.querySelectorAll('.record-row'));
+}
+
+// ─── RENDER ARTICLES ───
+function renderArticles(articles) {
+  const pick = articles.find(a => a.is_editors_pick);
+  const rest = articles.filter(a => !a.is_editors_pick);
+
+  const pickC = document.getElementById('pick-container');
+  if (pick) {
+    pickC.innerHTML = `
+      <div class="pick-card reveal">
+        <h3 class="pick-title">${pick.title}</h3>
+        ${pick.pull_quote ? `<p class="pick-pull">${pick.pull_quote}</p>` : ''}
+        <p class="pick-meta"><b>${pick.author}</b> &nbsp;·&nbsp; ${pick.city} &nbsp;·&nbsp; ${pick.published_at}</p>
+      </div>`;
+    observeAll(pickC.querySelectorAll('.pick-card'));
+  }
+
+  const artC = document.getElementById('articles-container');
+  artC.innerHTML = rest.map((a, i) => `
+    <div class="article-row">
+      <span class="article-num">0${i + 1}</span>
+      <span class="article-title">${a.title}</span>
+      <span class="article-byline"><b>${a.author}</b><br>${a.city} · ${a.published_at}</span>
+    </div>
+  `).join('');
+  observeAll(artC.querySelectorAll('.article-row'), 80);
+}
+
+// ─── RENDER HOT TAKES ───
+function renderHotTakes(takes) {
+  const c = document.getElementById('hottakes-container');
+  c.innerHTML = takes.slice(0, 3).map(t => `
+    <div class="take-row">
+      <p class="take-text">"${t.text}"</p>
+      <p class="take-author"><b>${t.author}</b> &nbsp;·&nbsp; ${t.city}</p>
+    </div>
+  `).join('');
+  observeAll(c.querySelectorAll('.take-row'), 120);
+}
+
+// ─── RENDER PETITION ───
+let petitionId = null;
+let petitionTarget = 25000;
+function renderPetition({ petition, count }) {
+  petitionId = petition.id;
+  petitionTarget = petition.target;
+  document.getElementById('petition-title').textContent = `"${petition.title}"`;
+  document.getElementById('counter-goal').textContent = `Goal: ${petition.target.toLocaleString('en-IN')}`;
+
+  // animate counter
+  const el = document.getElementById('counter');
+  const fill = document.getElementById('progress-fill');
+  const pctTarget = Math.min(100, Math.round((count / petition.target) * 100));
+
+  const sect = document.getElementById('petition');
+  let fired = false;
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !fired) {
+      fired = true;
+      fill.style.width = pctTarget + '%';
+      let cur = 0;
+      const step = 16;
+      const inc = count / (1800 / step);
+      const t = setInterval(() => {
+        cur += inc;
+        if (cur >= count) { el.textContent = count.toLocaleString('en-IN'); clearInterval(t); return; }
+        el.textContent = Math.floor(cur).toLocaleString('en-IN');
+      }, step);
+    }
+  }, { threshold: 0.3 });
+  obs.observe(sect);
+}
+
+// ─── RENDER STATS ───
+function renderStats(stats) {
+  const c = document.getElementById('stats-container');
+  c.innerHTML = stats.map(s => `
+    <div class="stat-cell">
+      <span class="stat-num">${s.value}</span>
+      <span class="stat-label">${s.label}</span>
+    </div>
+  `).join('');
+  observeAll(c.querySelectorAll('.stat-cell'), 100);
+}
+
+// ─── INTERSECTION OBSERVER ───
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const delay = parseInt(e.target.dataset.delay || 0);
+      setTimeout(() => e.target.classList.add('visible'), delay);
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+function observeAll(els, baseDelay = 0) {
+  Array.from(els).forEach((el, i) => {
+    el.dataset.delay = baseDelay * i;
+    io.observe(el);
+  });
+}
+
+// Observe static reveal elements
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// ─── FORM: SIGN PETITION ───
+async function signPetition() {
+  const name  = document.getElementById('petName').value.trim();
+  const email = document.getElementById('petEmail').value.trim();
+  const msg   = document.getElementById('petMsg');
+  if (!name || !email) {
+    msg.textContent = 'Enter your name and email.';
+    msg.className = 'form-msg err';
+    return;
+  }
+  try {
+    await insertSignature(petitionId, name, email);
+    msg.textContent = 'Signed. Your name is on record.';
+    msg.className = 'form-msg ok';
+    document.getElementById('petName').value = '';
+    document.getElementById('petEmail').value = '';
+  } catch(e) {
+    msg.textContent = 'Something went wrong. Try again.';
+    msg.className = 'form-msg err';
+  }
+}
+
+// ─── FORM: SUBMIT PIECE ───
+async function submitPiece() {
+  const name    = document.getElementById('subName').value.trim();
+  const email   = document.getElementById('subEmail').value.trim();
+  const content = document.getElementById('subContent').value.trim();
+  const msg     = document.getElementById('subMsg');
+  if (!name || !email || !content) {
+    msg.textContent = 'All fields are required.';
+    msg.className = 'form-msg err';
+    return;
+  }
+  try {
+    await insertSubmission(name, email, content);
+    msg.textContent = 'Received. We\'ll read it.';
+    msg.className = 'form-msg ok';
+    document.getElementById('subName').value = '';
+    document.getElementById('subEmail').value = '';
+    document.getElementById('subContent').value = '';
+  } catch(e) {
+    msg.textContent = 'Something went wrong. Try again.';
+    msg.className = 'form-msg err';
+  }
+}
+
+// ─── FORM: JOIN ───
+async function joinMovement(btn) {
+  const name  = document.getElementById('joinName').value.trim();
+  const email = document.getElementById('joinEmail').value.trim();
+  const city  = document.getElementById('joinCity').value.trim();
+  if (!name || !email) return;
+  try {
+    await insertMember(name, email, city);
+    btn.textContent = 'NAME ADDED.';
+    btn.classList.add('done');
+    btn.disabled = true;
+    document.getElementById('joinName').value = '';
+    document.getElementById('joinEmail').value = '';
+    document.getElementById('joinCity').value = '';
+  } catch(e) {
+    btn.textContent = 'TRY AGAIN →';
+    setTimeout(() => { btn.textContent = 'I\'M IN →'; }, 2000);
+  }
+}
+
+// ─── INIT: LOAD ALL CONTENT ───
+async function init() {
+  try {
+    const [demands, articles, hotTakes, petitionData, records, stats] = await Promise.all([
+      fetchDemands(),
+      fetchArticles(),
+      fetchHotTakes(),
+      fetchPetition(),
+      fetchRecords(),
+      fetchStats(),
+    ]);
+
+    buildTicker1(MOCK.ticker_1);
+    buildTicker2(MOCK.ticker_2);
+    renderDemands(demands);
+    renderRecords(records);
+    renderArticles(articles);
+    renderHotTakes(hotTakes);
+    renderPetition(petitionData);
+    renderStats(stats);
+
+    // re-observe newly rendered .reveal elements
+    document.querySelectorAll('.reveal:not(.visible)').forEach(el => io.observe(el));
+
+  } catch(err) {
+    console.error('YFI load error:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
