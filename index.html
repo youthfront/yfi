@@ -3,1571 +3,1505 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YouthFront India — Because the Youth Has Words</title>
+
+<title>YouthFront India — Youth, Politics, Articles & Petitions</title>
+<meta name="description" content="YouthFront India is an independent youth-led movement publishing essays, demands and petitions on India's most urgent political failures — written by Indians under 30. No party. No sponsor. No softening.">
+<meta name="keywords" content="youth politics india, student rights india, press freedom india, youthfront india, indian youth movement, campus politics india">
+<meta name="author" content="YouthFront India">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://youthfrontindia.pages.dev/">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://youthfrontindia.pages.dev/">
+<meta property="og:title" content="YouthFront India — Youth Politics, Essays & Petitions">
+<meta property="og:description" content="India's youth-led movement platform. Essays, demands and petitions — written by Indians under 30. Independent. Unfiltered. No party line.">
+<meta property="og:image" content="https://youthfrontindia.pages.dev/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="YouthFront India">
+<meta property="og:locale" content="en_IN">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@youthfrontindia">
+<meta name="twitter:title" content="YouthFront India — Youth Politics, Essays & Petitions">
+<meta name="twitter:description" content="India's youth-led movement platform. No party. No sponsor. No softening.">
+<meta name="twitter:image" content="https://youthfrontindia.pages.dev/og-image.jpg">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsMediaOrganization",
+  "name": "YouthFront India",
+  "alternateName": "YFI",
+  "url": "https://youthfrontindia.pages.dev",
+  "description": "Independent youth-led movement platform publishing essays, demands and petitions on India's most urgent political issues.",
+  "foundingDate": "2026",
+  "foundingLocation": { "@type": "Place", "name": "New Delhi, India" },
+  "contactPoint": { "@type": "ContactPoint", "email": "youthfront.in@gmail.com", "contactType": "editorial" }
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Barlow+Condensed:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=IBM+Plex+Mono:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-<!-- Supabase JS — dormant until credentials are filled -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400;1,8..60,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
 <style>
-/* =============================================
-   DESIGN TOKENS
-============================================= */
+/* ─────────────────────────────────────────────
+   TOKENS
+───────────────────────────────────────────── */
 :root {
-  --bg:         #0D0C0B;
-  --bg-card:    #131110;
-  --bg-tick1:   #1A1714;
-  --bg-tick2:   #0F1A17;
-  --border:     #272320;
-  --border-mid: #3A342E;
-  --muted:      #5A524A;
-  --muted-hi:   #7A6F65;
-  --text:       #EAE4D8;
-  --text-dim:   #B8B0A2;
-  --red:        #C8401A;
-  --red-dim:    #8A2D12;
-  --gold:       #C9992A;
-  --gold-dim:   #7A5C18;
-  --teal:       #3D7268;
-  --teal-bright:#4A8C80;
+  --ink:        #181210;
+  --ink-2:      #2D2420;
+  --ink-3:      #504540;
+  --ink-4:      #8A7D75;
+  --ink-5:      #B8AFA8;
+  --ink-6:      #D4CCC5;
+  --paper:      #F6F1E8;
+  --paper-2:    #EDE7DC;
+  --paper-3:    #E2DCD1;
+  --paper-4:    #D5CEC5;
+  --red:        #C13418;
+  --red-2:      #9E2B12;
+  --red-bg:     #F8EDE9;
+  --gold:       #9A6E0A;
+  --teal:       #1A6358;
+  --rule:       rgba(24,18,16,0.12);
+  --rule-heavy: rgba(24,18,16,0.25);
 
-  --f-display: 'Playfair Display', Georgia, serif;
-  --f-body:    'Barlow Condensed', sans-serif;
-  --f-label:   'Space Mono', monospace;
-  --f-record:  'IBM Plex Mono', monospace;
-
-  /* TYPE SCALE — three levels only */
-  --t-display: clamp(3.5rem, 8vw, 8rem);
-  --t-head:    clamp(1.6rem, 3vw, 2.6rem);
-  --t-body:    1.05rem;
-  --t-label:   0.72rem;
+  --f-disp:  'Playfair Display', Georgia, serif;
+  --f-body:  'Source Serif 4', Georgia, serif;
+  --f-ui:    'DM Sans', system-ui, sans-serif;
+  --w: 1160px;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--f-body);
-  font-size: var(--t-body);
-  line-height: 1.6;
-  overflow-x: hidden;
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;font-size:16px;}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-ui);line-height:1.6;-webkit-font-smoothing:antialiased;}
+a{color:inherit;text-decoration:none;}
+button{cursor:pointer;font-family:inherit;border:none;background:none;}
+img{display:block;max-width:100%;}
 
-/* GRAIN */
-body::after {
-  content: '';
-  position: fixed;
-  inset: -50%;
-  width: 200%; height: 200%;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.028;
-  pointer-events: none;
-  z-index: 9999;
-  animation: grain 9s steps(8) infinite;
-}
-@keyframes grain {
-  0%{transform:translate(0,0) rotate(0deg)}
-  12%{transform:translate(-2%,-3%) rotate(0.5deg)}
-  25%{transform:translate(3%,1%) rotate(-0.3deg)}
-  37%{transform:translate(-1%,4%) rotate(0.2deg)}
-  50%{transform:translate(4%,-2%) rotate(-0.5deg)}
-  62%{transform:translate(-3%,2%) rotate(0.4deg)}
-  75%{transform:translate(2%,-4%) rotate(-0.2deg)}
-  87%{transform:translate(-4%,1%) rotate(0.3deg)}
-  100%{transform:translate(0,0) rotate(0deg)}
-}
+/* ─────────────────────────────────────────────
+   LAYOUT
+───────────────────────────────────────────── */
+.wrap{max-width:var(--w);margin:0 auto;padding:0 2rem;}
 
-/* =============================================
+/* ─────────────────────────────────────────────
+   PETITION ALERT BAR — sticky top
+───────────────────────────────────────────── */
+.alert-bar{
+  background:var(--red);
+  padding:.55rem 0;
+  position:sticky;
+  top:0;
+  z-index:200;
+}
+.alert-bar-inner{
+  max-width:var(--w);margin:0 auto;padding:0 2rem;
+  display:flex;align-items:center;gap:1rem;
+  justify-content:center;
+}
+.alert-bar p{
+  font-family:var(--f-ui);font-size:.75rem;font-weight:500;
+  color:rgba(246,241,232,.85);letter-spacing:.01em;
+}
+.alert-bar strong{color:#fff;}
+.alert-bar-btn{
+  font-family:var(--f-ui);font-size:.7rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--red);background:#fff;
+  padding:.3rem .9rem;flex-shrink:0;
+  transition:opacity .15s;
+}
+.alert-bar-btn:hover{opacity:.85;}
+.alert-bar-count{
+  font-family:var(--f-ui);font-size:.68rem;
+  color:rgba(246,241,232,.6);
+  border-left:1px solid rgba(255,255,255,.25);
+  padding-left:1rem;margin-left:.25rem;
+  display:none;
+}
+.alert-bar-count.visible{display:block;}
+
+/* ─────────────────────────────────────────────
    NAV
-============================================= */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.1rem 3rem;
-  border-bottom: 1px solid var(--border);
-  background: rgba(13,12,11,0.94);
-  backdrop-filter: blur(12px);
+───────────────────────────────────────────── */
+nav.site-nav{
+  background:var(--paper);
+  border-bottom:1px solid var(--rule);
 }
-.nav-logo {
-  font-family: var(--f-label);
-  font-size: 0.68rem;
-  letter-spacing: 0.18em;
-  color: var(--text);
-  text-transform: uppercase;
+.nav-inner{
+  max-width:var(--w);margin:0 auto;padding:0 2rem;
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;height:62px;gap:1rem;
 }
-.nav-logo b { color: var(--red); font-weight: 700; }
-.nav-links {
-  display: flex;
-  gap: 2.5rem;
-  list-style: none;
+.nav-links{display:flex;gap:1.75rem;align-items:center;}
+.nav-links a{
+  font-family:var(--f-ui);font-size:.75rem;font-weight:500;
+  letter-spacing:.04em;text-transform:uppercase;
+  color:var(--ink-3);transition:color .2s;
 }
-.nav-links a {
-  font-family: var(--f-label);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-decoration: none;
-  transition: color 0.2s;
+.nav-links a:hover{color:var(--red);}
+.nav-wordmark{text-align:center;}
+.nav-wordmark a{
+  font-family:var(--f-disp);font-size:1.55rem;font-weight:900;
+  letter-spacing:-.025em;color:var(--ink);line-height:1;
+  display:block;
 }
-.nav-links a:hover { color: var(--text); }
-.nav-cta {
-  font-family: var(--f-label);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text);
-  background: var(--red);
-  padding: 0.55rem 1.3rem;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s;
+.nav-wordmark a em{color:var(--red);font-style:italic;}
+.nav-wordmark .sub{
+  font-family:var(--f-ui);font-size:.58rem;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-4);margin-top:.2rem;
 }
-.nav-cta:hover { background: #a83416; }
+.nav-right{display:flex;justify-content:flex-end;gap:1.25rem;align-items:center;}
+.nav-right a{
+  font-family:var(--f-ui);font-size:.72rem;font-weight:500;
+  letter-spacing:.04em;text-transform:uppercase;
+  color:var(--ink-4);transition:color .2s;
+}
+.nav-right a:hover{color:var(--ink);}
+.nav-join{
+  font-family:var(--f-ui);font-size:.7rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  border:1.5px solid var(--ink);color:var(--ink);
+  padding:.42rem 1.1rem;transition:all .2s;
+}
+.nav-join:hover{background:var(--ink);color:var(--paper);}
 
-/* =============================================
+/* ─────────────────────────────────────────────
    HERO
-============================================= */
-#hero {
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: 1fr auto;
-  padding: 0 3rem;
-  border-bottom: 1px solid var(--border);
-  position: relative;
-  overflow: hidden;
+───────────────────────────────────────────── */
+.hero{
+  background:var(--ink);
+  padding:5rem 0 4.5rem;
+  position:relative;
+  overflow:hidden;
 }
-.hero-inner {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding-bottom: 5rem;
-  padding-top: 8rem;
+/* Subtle texture lines — pure CSS, no images */
+.hero::before{
+  content:'';
+  position:absolute;inset:0;
+  background-image:repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 59px,
+    rgba(255,255,255,.025) 59px,
+    rgba(255,255,255,.025) 60px
+  );
+  pointer-events:none;
 }
-.hero-meta {
-  font-family: var(--f-label);
-  font-size: var(--t-label);
-  letter-spacing: 0.22em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 2.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.hero-inner{
+  max-width:var(--w);margin:0 auto;padding:0 2rem;
+  position:relative;z-index:1;
 }
-.hero-meta::before {
-  content: '';
-  display: block;
-  width: 28px;
-  height: 1px;
-  background: var(--red);
+.hero-kicker{
+  display:inline-flex;align-items:center;gap:.75rem;
+  margin-bottom:2rem;
 }
-.hero-name {
-  font-family: var(--f-display);
-  font-size: var(--t-display);
-  font-weight: 900;
-  line-height: 0.88;
-  letter-spacing: -0.03em;
-  color: var(--text);
-  margin-bottom: 3rem;
+.hero-kicker-line{
+  width:32px;height:2px;background:var(--red);flex-shrink:0;
 }
-.hero-name .accent { color: var(--red); font-style: italic; }
-.hero-divider {
-  width: 60px;
-  height: 2px;
-  background: var(--red);
-  margin-bottom: 2.5rem;
+.hero-kicker span{
+  font-family:var(--f-ui);font-size:.68rem;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--red);
 }
-.hero-tagline-wrap {
-  display: flex;
-  align-items: flex-start;
-  gap: 1.5rem;
-  max-width: 640px;
+.hero-headline{
+  font-family:var(--f-disp);
+  font-size:clamp(2.6rem,5.5vw,5rem);
+  font-weight:900;
+  line-height:1.03;
+  letter-spacing:-.03em;
+  color:var(--paper);
+  max-width:820px;
+  margin-bottom:2.5rem;
 }
-.hero-tagline {
-  font-family: var(--f-display);
-  font-size: clamp(1.1rem, 2vw, 1.5rem);
-  font-style: italic;
-  font-weight: 700;
-  color: var(--text-dim);
-  line-height: 1.4;
-  min-height: 2.2em;
+.hero-headline em{
+  font-style:italic;color:var(--red);
 }
-.cursor {
-  display: inline-block;
-  width: 2px;
-  height: 0.9em;
-  background: var(--red);
-  vertical-align: middle;
-  margin-left: 3px;
-  animation: blink 1s step-end infinite;
+.hero-subtext{
+  font-family:var(--f-body);
+  font-size:1.05rem;
+  font-style:italic;
+  line-height:1.7;
+  color:rgba(246,241,232,.55);
+  max-width:540px;
+  margin-bottom:3rem;
 }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-.hero-bottom {
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.2rem 0;
+.hero-subtext strong{color:rgba(246,241,232,.85);font-style:normal;font-weight:600;}
+.hero-actions{
+  display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;
 }
-.hero-scroll-hint {
-  font-family: var(--f-label);
-  font-size: 0.58rem;
-  letter-spacing: 0.22em;
-  color: var(--muted);
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
+.btn-hero-primary{
+  font-family:var(--f-ui);font-size:.78rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  background:var(--red);color:var(--paper);
+  padding:.9rem 2rem;transition:background .2s;
+  display:inline-block;
 }
-.hero-scroll-hint::before {
-  content: '';
-  width: 36px; height: 1px;
-  background: var(--muted);
+.btn-hero-primary:hover{background:var(--red-2);}
+.btn-hero-ghost{
+  font-family:var(--f-ui);font-size:.78rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(246,241,232,.5);
+  border-bottom:1px solid rgba(246,241,232,.2);
+  padding-bottom:.1rem;
+  transition:color .2s,border-color .2s;
 }
-.hero-email {
-  font-family: var(--f-label);
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-  text-decoration: none;
-  text-transform: lowercase;
-  transition: color 0.2s;
+.btn-hero-ghost:hover{color:var(--paper);border-color:var(--paper);}
+.hero-proof{
+  display:flex;gap:2.5rem;flex-wrap:wrap;
+  margin-top:4rem;
+  padding-top:2rem;
+  border-top:1px solid rgba(255,255,255,.08);
 }
-.hero-email:hover { color: var(--text-dim); }
-
-/* =============================================
-   TICKERS
-============================================= */
-.ticker-band {
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  position: relative;
+.hero-proof-item{}
+.hero-proof-num{
+  font-family:var(--f-disp);font-size:1.8rem;font-weight:900;
+  color:var(--paper);line-height:1;letter-spacing:-.02em;
 }
-.ticker-band-1 {
-  height: 64px;
-  background: var(--bg-tick1);
-}
-.ticker-band-2 {
-  height: 52px;
-  background: var(--bg-tick2);
-}
-.ticker-track {
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  will-change: transform;
-}
-.ticker-track-1 { animation: scroll1 55s linear infinite; }
-.ticker-track-2 { animation: scroll2 28s linear infinite; }
-.ticker-band:hover .ticker-track { animation-play-state: paused; }
-@keyframes scroll1 { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-@keyframes scroll2 { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-
-.ticker-item-1 {
-  font-family: var(--f-label);
-  font-size: 0.7rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  padding: 0 3rem;
-}
-.ticker-sep-1 { color: var(--red); font-size: 0.5rem; }
-
-.ticker-item-2 {
-  font-family: var(--f-display);
-  font-size: 1rem;
-  font-weight: 700;
-  font-style: italic;
-  color: var(--muted-hi);
-  letter-spacing: 0.05em;
-  padding: 0 2rem;
-}
-.ticker-sep-2 { color: var(--border-mid); font-size: 0.7rem; }
-
-/* =============================================
-   SECTION BASE
-============================================= */
-section { border-bottom: 1px solid var(--border); }
-.section-wrap { padding: 5rem 3rem; }
-
-.sec-head {
-  font-family: var(--f-label);
-  font-size: var(--t-label);
-  letter-spacing: 0.22em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 3.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.sec-head::before {
-  content: '';
-  width: 20px; height: 1px;
-  background: var(--red);
-  flex-shrink: 0;
+.hero-proof-label{
+  font-family:var(--f-ui);font-size:.65rem;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(246,241,232,.35);margin-top:.2rem;
 }
 
-.sec-title {
-  font-family: var(--f-display);
-  font-size: var(--t-head);
-  font-weight: 900;
-  line-height: 1.05;
-  color: var(--text);
+/* ─────────────────────────────────────────────
+   EDITOR'S PICK — just below hero
+───────────────────────────────────────────── */
+.pick-band{
+  background:var(--paper-2);
+  border-bottom:1px solid var(--rule);
+  padding:2.5rem 0;
+}
+.pick-inner{
+  max-width:var(--w);margin:0 auto;padding:0 2rem;
+  display:grid;grid-template-columns:120px 1fr;gap:2rem;align-items:start;
+}
+.pick-label-col{padding-top:.3rem;}
+.pick-label{
+  font-family:var(--f-ui);font-size:.62rem;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--red);writing-mode:vertical-rl;
+  transform:rotate(180deg);
+  display:inline-block;
+}
+.pick-content{}
+.pick-overline{
+  font-family:var(--f-ui);font-size:.65rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-4);margin-bottom:.75rem;
+}
+.pick-title{
+  font-family:var(--f-disp);font-size:clamp(1.4rem,2.5vw,2rem);
+  font-weight:900;line-height:1.15;letter-spacing:-.02em;
+  color:var(--ink);margin-bottom:1rem;
+  transition:color .2s;cursor:default;
+}
+.pick-title:hover{color:var(--red);}
+.pick-pull{
+  font-family:var(--f-body);font-size:1rem;font-style:italic;
+  line-height:1.7;color:var(--ink-3);
+  border-left:3px solid var(--red);padding-left:1.2rem;
+  margin-bottom:1rem;max-width:680px;
+}
+.pick-meta{
+  font-family:var(--f-ui);font-size:.72rem;color:var(--ink-4);
+}
+.pick-meta strong{color:var(--ink-2);font-weight:600;}
+
+/* ─────────────────────────────────────────────
+   SECTION HEADS
+───────────────────────────────────────────── */
+.sec-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  gap:1rem;padding-bottom:.65rem;
+  border-bottom:2px solid var(--ink);
+  margin-bottom:2rem;
+}
+.sec-head.red{border-bottom-color:var(--red);}
+.sec-head.teal{border-bottom-color:var(--teal);}
+.sec-head.gold{border-bottom-color:var(--gold);}
+.sec-title{
+  font-family:var(--f-disp);font-size:1.05rem;font-weight:900;
+  letter-spacing:-.01em;color:var(--ink);
+}
+.sec-sub{
+  font-family:var(--f-ui);font-size:.65rem;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4);
 }
 
-/* =============================================
+/* ─────────────────────────────────────────────
    DEMANDS
-============================================= */
-#demands .sec-title {
-  margin-bottom: 0.6rem;
+───────────────────────────────────────────── */
+.demands-section{
+  padding:4rem 0;
+  background:var(--ink);
 }
-.demands-updated {
-  font-family: var(--f-label);
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
-  color: var(--teal);
-  text-transform: uppercase;
-  margin-bottom: 4rem;
-  opacity: 0.8;
+.demands-top{
+  max-width:var(--w);margin:0 auto;padding:0 2rem;
+  margin-bottom:3rem;
 }
-#demands-container { border-top: 1px solid var(--border); }
-
-.demand-row {
-  display: grid;
-  grid-template-columns: 80px 1fr;
-  gap: 0;
-  border-bottom: 1px solid var(--border);
-  padding: 2.4rem 0;
-  opacity: 0;
-  transform: translateX(-24px);
-  transition: opacity 0.55s ease, transform 0.55s ease;
-  cursor: default;
+.demands-label{
+  font-family:var(--f-ui);font-size:.65rem;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--red);margin-bottom:1rem;
 }
-.demand-row.visible { opacity: 1; transform: translateX(0); }
-.demand-row:hover .demand-num { color: var(--red); }
-
-.demand-num {
-  font-family: var(--f-display);
-  font-size: 2.8rem;
-  font-weight: 900;
-  color: var(--gold);
-  line-height: 1;
-  padding-top: 0.15rem;
-  transition: color 0.25s;
-  opacity: 0;
-  transition: opacity 0.4s ease 0.25s, color 0.25s;
-  user-select: none;
+.demands-intro{
+  font-family:var(--f-disp);
+  font-size:clamp(1.5rem,3vw,2.2rem);
+  font-weight:900;line-height:1.1;letter-spacing:-.02em;
+  color:var(--paper);max-width:640px;
 }
-.demand-row.visible .demand-num { opacity: 1; }
-
-.demand-text {
-  font-family: var(--f-display);
-  font-size: clamp(1.2rem, 2.2vw, 1.8rem);
-  font-weight: 700;
-  line-height: 1.25;
-  color: var(--text);
-  padding-right: 4rem;
-  align-self: center;
+.demands-intro em{font-style:italic;color:rgba(246,241,232,.4);}
+.demands-updated-txt{
+  font-family:var(--f-ui);font-size:.68rem;color:rgba(246,241,232,.25);
+  margin-top:1.2rem;letter-spacing:.02em;
+}
+.demands-list{
+  border-top:1px solid rgba(255,255,255,.07);
+}
+.demand-row{
+  display:grid;grid-template-columns:70px 1fr;
+  padding:1.75rem 2rem;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  max-width:var(--w);margin:0 auto;
+  transition:background .2s;
+  cursor:default;
+}
+.demand-row:hover{background:rgba(255,255,255,.025);}
+.demand-n{
+  font-family:var(--f-disp);font-size:2.2rem;font-weight:900;
+  color:rgba(255,255,255,.1);line-height:1;letter-spacing:-.02em;
+  padding-top:.1rem;transition:color .2s;
+}
+.demand-row:hover .demand-n{color:var(--red);}
+.demand-txt{
+  font-family:var(--f-disp);font-size:clamp(1rem,1.8vw,1.25rem);
+  font-weight:700;line-height:1.35;color:rgba(246,241,232,.9);
+  align-self:center;
 }
 
-/* =============================================
+/* ─────────────────────────────────────────────
    ON THE RECORD
-============================================= */
-#record { background: var(--bg-card); }
-.record-intro {
-  font-family: var(--f-record);
-  font-size: 0.82rem;
-  color: var(--muted-hi);
-  font-style: italic;
-  margin-bottom: 3rem;
-  margin-top: -1.5rem;
+───────────────────────────────────────────── */
+.records-section{padding:4rem 0;background:var(--paper);}
+.records-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  border:1px solid var(--rule);
 }
-#record-container { border-top: 1px solid var(--border); }
+.record-card{
+  padding:1.75rem;
+  border-right:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
+  transition:background .2s;
+}
+.record-card:hover{background:var(--paper-2);}
+.record-num{
+  font-family:var(--f-ui);font-size:.62rem;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  color:var(--red);margin-bottom:.85rem;
+}
+.record-fact{
+  font-family:var(--f-body);font-size:.95rem;line-height:1.7;
+  color:var(--ink-2);margin-bottom:1.25rem;
+}
+.record-source{
+  font-family:var(--f-ui);font-size:.65rem;font-weight:500;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-5);padding-top:.75rem;
+  border-top:1px solid var(--rule);
+}
+.record-source strong{color:var(--ink-3);}
 
-.record-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 2rem;
-  align-items: start;
-  padding: 1.8rem 0;
-  border-bottom: 1px solid var(--border);
-  border-left: 2px solid transparent;
-  padding-left: 1.2rem;
-  margin-left: -1.2rem;
-  transition: border-left-color 0.3s;
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 0.45s ease, transform 0.45s ease, border-left-color 0.3s;
-}
-.record-row.visible { opacity: 1; transform: translateY(0); }
-.record-row:hover { border-left-color: var(--gold-dim); }
-
-.record-fact {
-  font-family: var(--f-record);
-  font-size: 0.92rem;
-  color: var(--text);
-  line-height: 1.65;
-}
-.record-source {
-  font-family: var(--f-label);
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-  color: var(--teal-bright);
-  text-transform: uppercase;
-  white-space: nowrap;
-  padding-top: 0.2rem;
-  text-align: right;
-}
-
-/* =============================================
-   DISPATCHES
-============================================= */
-.editors-pick-label {
-  font-family: var(--f-label);
-  font-size: var(--t-label);
-  letter-spacing: 0.2em;
-  color: var(--gold);
-  text-transform: uppercase;
-  margin-bottom: 1.8rem;
-}
-
-/* Editor's pick — full width, editorial */
-.pick-card {
-  padding: 3rem;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--gold);
-  background: var(--bg-card);
-  margin-bottom: 3.5rem;
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-.pick-card.visible { opacity: 1; transform: translateY(0); }
-
-.pick-title {
-  font-family: var(--f-display);
-  font-size: clamp(1.8rem, 3.5vw, 3rem);
-  font-weight: 900;
-  line-height: 1.1;
-  color: var(--text);
-  margin-bottom: 1.5rem;
-}
-.pick-pull {
-  font-family: var(--f-display);
-  font-size: clamp(1rem, 1.5vw, 1.3rem);
-  font-style: italic;
-  color: var(--muted-hi);
-  line-height: 1.5;
-  max-width: 680px;
-  margin-bottom: 2rem;
-  padding-left: 1.2rem;
-  border-left: 1px solid var(--border-mid);
-}
-.pick-meta {
-  font-family: var(--f-label);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-.pick-meta b { color: var(--text-dim); font-weight: 700; }
-
-/* Article list — numbered rows */
-.articles-header {
-  display: grid;
-  grid-template-columns: 40px 1fr 140px;
-  gap: 1.5rem;
-  padding: 0.6rem 0 0.8rem;
-  border-bottom: 1px solid var(--border-mid);
-  margin-bottom: 0;
-}
-.articles-header span {
-  font-family: var(--f-label);
-  font-size: 0.56rem;
-  letter-spacing: 0.18em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-#articles-container { border-bottom: 1px solid var(--border); }
-
-.article-row {
-  display: grid;
-  grid-template-columns: 40px 1fr 140px;
-  gap: 1.5rem;
-  align-items: center;
-  padding: 1.4rem 0;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.4s ease, transform 0.4s ease, background 0.2s;
-}
-.article-row.visible { opacity: 1; transform: translateY(0); }
-.article-row:hover { background: var(--bg-card); margin: 0 -3rem; padding: 1.4rem 3rem; }
-
-.article-num {
-  font-family: var(--f-label);
-  font-size: 0.62rem;
-  color: var(--muted);
-  letter-spacing: 0.1em;
-}
-.article-title {
-  font-family: var(--f-display);
-  font-size: clamp(1rem, 1.6vw, 1.25rem);
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.25;
-}
-.article-byline {
-  font-family: var(--f-label);
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  text-transform: uppercase;
-  text-align: right;
-}
-.article-byline b { color: var(--text-dim); }
-
-.archive-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 2.5rem;
-  font-family: var(--f-label);
-  font-size: var(--t-label);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-decoration: none;
-  border-bottom: 1px solid var(--border-mid);
-  padding-bottom: 3px;
-  transition: color 0.2s, border-color 0.2s;
-}
-.archive-link:hover { color: var(--text); border-color: var(--text-dim); }
-
-/* =============================================
+/* ─────────────────────────────────────────────
    HOT TAKES
-============================================= */
-#hottakes { background: var(--bg-card); }
-#hottakes-container { margin-top: 2rem; }
-
-.take-row {
-  padding: 2.5rem 0;
-  border-bottom: 1px solid var(--border);
-  border-left: 2px solid var(--red);
-  padding-left: 2rem;
-  margin-left: -3rem;
-  padding-right: 3rem;
-  opacity: 0;
-  transform: translateX(-16px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+───────────────────────────────────────────── */
+.takes-section{
+  padding:4rem 0;
+  background:var(--paper-2);
+  border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
 }
-.take-row.visible { opacity: 1; transform: translateX(0); }
-
-.take-text {
-  font-family: var(--f-display);
-  font-size: clamp(1.1rem, 2vw, 1.5rem);
-  font-style: italic;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.35;
-  margin-bottom: 1rem;
+.takes-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border:1px solid var(--rule-heavy);
 }
-.take-author {
-  font-family: var(--f-label);
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  color: var(--muted);
-  text-transform: uppercase;
+.take-card{
+  padding:2rem;
+  border-right:1px solid var(--rule-heavy);
+  display:flex;flex-direction:column;
+  transition:background .2s;
 }
-.take-author b { color: var(--red); }
+.take-card:hover{background:var(--paper);}
+.take-card:last-child{border-right:none;}
+.take-mark{
+  font-family:var(--f-disp);font-size:3rem;line-height:.7;
+  color:var(--red);font-weight:900;margin-bottom:1.25rem;
+}
+.take-text{
+  font-family:var(--f-body);font-size:.95rem;line-height:1.75;
+  color:var(--ink-2);font-style:italic;flex:1;margin-bottom:1.5rem;
+}
+.take-by{
+  font-family:var(--f-ui);font-size:.68rem;font-weight:500;
+  letter-spacing:.04em;color:var(--ink-4);
+  border-top:1px solid var(--rule);padding-top:1rem;
+}
+.take-by strong{color:var(--ink-2);}
 
-/* =============================================
+/* ─────────────────────────────────────────────
+   DISPATCHES
+───────────────────────────────────────────── */
+.dispatches-section{padding:4rem 0;background:var(--paper);}
+.dispatches-layout{
+  display:grid;grid-template-columns:1fr 1px 300px;gap:0;
+}
+.dispatches-main{padding-right:2.5rem;}
+.d-rule{background:var(--rule);}
+.dispatches-aside{padding-left:2.5rem;}
+
+/* Featured */
+.d-featured{
+  padding-bottom:2rem;margin-bottom:2rem;
+  border-bottom:1px solid var(--rule);
+}
+.d-badge{
+  display:inline-block;
+  background:var(--red);color:var(--paper);
+  font-family:var(--f-ui);font-size:.58rem;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  padding:.2rem .6rem;margin-bottom:.9rem;
+}
+.d-featured-title{
+  font-family:var(--f-disp);font-size:clamp(1.3rem,2.2vw,1.75rem);
+  font-weight:900;line-height:1.15;letter-spacing:-.02em;
+  color:var(--ink);margin-bottom:.75rem;transition:color .2s;cursor:default;
+}
+.d-featured:hover .d-featured-title{color:var(--red);}
+.d-featured-pull{
+  font-family:var(--f-body);font-size:.95rem;font-style:italic;
+  line-height:1.7;color:var(--ink-3);margin-bottom:.85rem;
+}
+.d-meta{
+  font-family:var(--f-ui);font-size:.7rem;color:var(--ink-4);
+}
+.d-meta strong{color:var(--ink-2);font-weight:600;}
+
+/* List */
+.d-item{
+  display:grid;grid-template-columns:1fr auto;gap:1rem;
+  padding:1.15rem 0;border-bottom:1px solid var(--rule);
+  cursor:default;transition:opacity .2s;
+}
+.d-item:hover{opacity:.7;}
+.d-item:last-child{border-bottom:none;}
+.d-item-title{
+  font-family:var(--f-disp);font-size:1rem;font-weight:700;
+  line-height:1.3;color:var(--ink);margin-bottom:.3rem;
+}
+.d-item-meta{font-family:var(--f-ui);font-size:.68rem;color:var(--ink-4);}
+.d-item-date{
+  font-family:var(--f-ui);font-size:.68rem;color:var(--ink-5);
+  white-space:nowrap;padding-top:.15rem;
+}
+
+/* Aside — write for us */
+.aside-label{
+  font-family:var(--f-ui);font-size:.62rem;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-4);padding-bottom:.65rem;
+  border-bottom:2px solid var(--ink);margin-bottom:1.5rem;
+}
+.write-box{
+  border:1px solid var(--rule-heavy);padding:1.5rem;
+  background:var(--paper-2);
+}
+.write-box-title{
+  font-family:var(--f-disp);font-size:1.05rem;font-weight:900;
+  color:var(--ink);margin-bottom:.75rem;line-height:1.2;
+}
+.write-box p{
+  font-family:var(--f-ui);font-size:.8rem;line-height:1.65;
+  color:var(--ink-3);margin-bottom:.5rem;
+}
+.write-guidelines{list-style:none;margin:.75rem 0;}
+.write-guidelines li{
+  font-family:var(--f-ui);font-size:.76rem;color:var(--ink-3);
+  padding:.2rem 0 .2rem .9rem;line-height:1.5;position:relative;
+}
+.write-guidelines li::before{
+  content:'—';position:absolute;left:0;color:var(--ink-5);
+}
+.btn-write{
+  display:block;width:100%;text-align:center;
+  background:var(--ink);color:var(--paper);
+  font-family:var(--f-ui);font-size:.72rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:.85rem;margin-top:1.2rem;
+  border:none;cursor:pointer;transition:background .2s;
+}
+.btn-write:hover{background:var(--red);}
+
+/* ─────────────────────────────────────────────
    PETITION
-============================================= */
-#petition { position: relative; }
-.petition-title {
-  font-family: var(--f-display);
-  font-size: clamp(1.3rem, 2.2vw, 1.9rem);
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.3;
-  max-width: 680px;
-  margin-bottom: 3rem;
-  border-left: 2px solid var(--red);
-  padding-left: 1.5rem;
+───────────────────────────────────────────── */
+.petition-section{
+  padding:4rem 0;
+  background:var(--ink);
+  border-top:3px solid var(--red);
 }
-.counter-block { margin-bottom: 2.5rem; }
-.counter-num {
-  display: block;
-  font-family: var(--f-display);
-  font-size: clamp(4.5rem, 9vw, 8rem);
-  font-weight: 900;
-  color: var(--red);
-  line-height: 0.95;
-  letter-spacing: -0.03em;
+.petition-inner{
+  display:grid;grid-template-columns:1fr 400px;gap:4rem;align-items:start;
 }
-.counter-sub {
-  font-family: var(--f-label);
-  font-size: var(--t-label);
-  letter-spacing: 0.16em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-top: 0.7rem;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+.pet-label{
+  font-family:var(--f-ui);font-size:.65rem;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:1rem;
+  display:flex;align-items:center;gap:.6rem;
 }
-.counter-goal { color: var(--muted-hi); }
-.progress-bar {
-  width: 100%;
-  max-width: 480px;
-  height: 2px;
-  background: var(--border-mid);
-  margin: 1.5rem 0 2.5rem;
+.pet-label::before{
+  content:'';display:block;
+  width:6px;height:6px;background:var(--teal);
+  border-radius:50%;animation:pulse 2s ease-in-out infinite;
 }
-.progress-fill {
-  height: 100%;
-  background: var(--red);
-  width: 0%;
-  transition: width 2s cubic-bezier(0.19, 1, 0.22, 1);
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.pet-title{
+  font-family:var(--f-disp);font-size:clamp(1.4rem,2.5vw,2rem);
+  font-weight:900;line-height:1.15;letter-spacing:-.02em;
+  color:var(--paper);margin-bottom:1.75rem;
 }
-.petition-form {
-  display: flex;
-  gap: 0;
-  max-width: 480px;
-  border: 1px solid var(--border-mid);
+.pet-count-wrap{display:flex;align-items:baseline;gap:1rem;margin-bottom:.75rem;}
+.pet-count{
+  font-family:var(--f-disp);font-size:3.2rem;font-weight:900;
+  color:var(--paper);line-height:1;letter-spacing:-.03em;
 }
-.petition-form input {
-  flex: 1;
-  background: var(--bg-card);
-  border: none;
-  border-right: 1px solid var(--border-mid);
-  color: var(--text);
-  font-family: var(--f-body);
-  font-size: 0.9rem;
-  font-weight: 500;
-  padding: 0.9rem 1.1rem;
-  outline: none;
-  transition: background 0.2s;
+.pet-count-label{
+  font-family:var(--f-ui);font-size:.75rem;
+  color:rgba(246,241,232,.4);
 }
-.petition-form input:focus { background: #181412; }
-.petition-form input::placeholder { color: var(--muted); }
-.btn-sign {
-  background: var(--red);
-  color: var(--text);
-  border: none;
-  padding: 0.9rem 1.6rem;
-  font-family: var(--f-label);
-  font-size: 0.65rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  cursor: pointer;
-  white-space: nowrap;
-  position: relative;
-  overflow: hidden;
-  transition: background 0.2s;
+.pet-count-goal{
+  font-family:var(--f-ui);font-size:.72rem;
+  color:rgba(246,241,232,.3);margin-bottom:1.25rem;
 }
-.btn-sign:hover { background: #a83416; }
-.form-msg {
-  font-family: var(--f-label);
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  margin-top: 1rem;
-  min-height: 1.2em;
-  transition: opacity 0.3s;
+.pet-count-goal strong{color:rgba(246,241,232,.55);}
+.pet-bar{height:2px;background:rgba(255,255,255,.1);margin-bottom:.5rem;}
+.pet-bar-fill{height:100%;background:var(--red);transition:width 1s ease;}
+.pet-bar-pct{
+  font-family:var(--f-ui);font-size:.6rem;
+  color:rgba(246,241,232,.25);
 }
-.form-msg.ok { color: var(--teal-bright); }
-.form-msg.err { color: var(--red); }
-
-/* =============================================
-   BY THE NUMBERS
-============================================= */
-#numbers { background: var(--bg-card); }
-#stats-container {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  border: 1px solid var(--border);
-  margin-top: 3rem;
+/* form */
+.pet-form-box{
+  background:var(--paper);padding:2rem;
 }
-.stat-cell {
-  padding: 2.8rem 2rem;
-  border-right: 1px solid var(--border);
-  opacity: 0;
-  transform: translateY(12px);
-  transition: opacity 0.45s ease, transform 0.45s ease;
+.pet-form-title{
+  font-family:var(--f-disp);font-size:1.1rem;font-weight:900;
+  color:var(--ink);margin-bottom:1.5rem;line-height:1.2;
 }
-.stat-cell:last-child { border-right: none; }
-.stat-cell.visible { opacity: 1; transform: translateY(0); }
-.stat-num {
-  display: block;
-  font-family: var(--f-display);
-  font-size: clamp(2rem, 3.5vw, 3rem);
-  font-weight: 900;
-  color: var(--gold);
-  line-height: 1;
-  margin-bottom: 0.7rem;
+.f-field{margin-bottom:.85rem;}
+.f-label{
+  display:block;font-family:var(--f-ui);font-size:.65rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-4);margin-bottom:.4rem;
 }
-.stat-label {
-  display: block;
-  font-family: var(--f-label);
-  font-size: 0.6rem;
-  letter-spacing: 0.16em;
-  color: var(--muted);
-  text-transform: uppercase;
-  line-height: 1.5;
+.f-input{
+  width:100%;background:var(--paper-2);
+  border:1px solid var(--paper-4);
+  color:var(--ink);font-family:var(--f-ui);font-size:.92rem;
+  padding:.7rem .9rem;outline:none;
+  transition:border-color .2s;
+  -webkit-appearance:none;border-radius:0;
+}
+.f-input:focus{border-color:var(--ink);}
+.f-input::placeholder{color:var(--ink-5);}
+.btn-sign{
+  width:100%;background:var(--red);color:var(--paper);
+  font-family:var(--f-ui);font-size:.75rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:.95rem;border:none;cursor:pointer;
+  transition:background .2s;margin-top:.25rem;
+}
+.btn-sign:hover{background:var(--red-2);}
+.btn-sign:disabled{background:var(--ink-4);cursor:default;}
+.pet-disclaimer{
+  font-family:var(--f-ui);font-size:.65rem;color:var(--ink-4);
+  margin-top:.75rem;line-height:1.5;
 }
 
-/* =============================================
-   SUBMIT
-============================================= */
-.submit-callout {
-  font-family: var(--f-display);
-  font-size: clamp(1.8rem, 3.5vw, 3rem);
-  font-weight: 900;
-  color: var(--text);
-  line-height: 1.1;
-  margin-bottom: 1rem;
-  max-width: 700px;
+/* ─────────────────────────────────────────────
+   STATS
+───────────────────────────────────────────── */
+.stats-band{
+  background:var(--paper-3);
+  border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
+  padding:2.5rem 0;
 }
-.submit-sub {
-  font-family: var(--f-body);
-  font-size: 1rem;
-  color: var(--muted-hi);
-  line-height: 1.7;
-  max-width: 520px;
-  margin-bottom: 3rem;
+.stats-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:0;border:1px solid var(--rule-heavy);
 }
-.submit-form {
-  max-width: 640px;
-  border: 1px solid var(--border-mid);
-  background: var(--bg-card);
+.stat-cell{
+  text-align:center;padding:1.75rem 1.25rem;
+  border-right:1px solid var(--rule-heavy);
 }
-.submit-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-bottom: 1px solid var(--border);
+.stat-cell:last-child{border-right:none;}
+.stat-val{
+  font-family:var(--f-disp);font-size:2.4rem;font-weight:900;
+  color:var(--ink);line-height:1;letter-spacing:-.02em;margin-bottom:.4rem;
 }
-.submit-form input,
-.submit-form textarea {
-  background: transparent;
-  border: none;
-  color: var(--text);
-  font-family: var(--f-body);
-  font-size: 0.95rem;
-  font-weight: 500;
-  padding: 1rem 1.2rem;
-  outline: none;
-  width: 100%;
-  resize: none;
-  transition: background 0.2s;
-  border-right: 1px solid var(--border);
-}
-.submit-form input:last-child,
-.submit-form textarea { border-right: none; }
-.submit-form input::placeholder,
-.submit-form textarea::placeholder { color: var(--muted); }
-.submit-form input:focus,
-.submit-form textarea:focus { background: rgba(255,255,255,0.02); }
-.submit-form textarea {
-  min-height: 180px;
-  display: block;
-  width: 100%;
-  border-right: none;
-  border-bottom: 1px solid var(--border);
-}
-.btn-submit {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: transparent;
-  color: var(--muted);
-  border: none;
-  padding: 1rem 1.2rem;
-  font-family: var(--f-label);
-  font-size: 0.65rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: color 0.2s, background 0.2s;
-}
-.btn-submit:hover { color: var(--text); background: rgba(255,255,255,0.02); }
-.btn-submit .arr { transition: transform 0.2s; }
-.btn-submit:hover .arr { transform: translateX(4px); }
-
-/* =============================================
-   JOIN / FOOTER
-============================================= */
-#join {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 0 3rem;
-  border-top: 3px solid var(--red);
-}
-.join-inner {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 7rem 0 5rem;
-}
-.join-tagline {
-  font-family: var(--f-display);
-  font-size: clamp(3.5rem, 9vw, 9rem);
-  font-weight: 900;
-  line-height: 0.88;
-  letter-spacing: -0.03em;
-  color: var(--text);
-  margin-bottom: 1.5rem;
-}
-.join-tagline em { color: var(--red); font-style: italic; }
-.join-sub {
-  font-family: var(--f-body);
-  font-size: 1.1rem;
-  color: var(--muted-hi);
-  margin-bottom: 3.5rem;
-  font-style: italic;
-}
-.join-form {
-  display: flex;
-  gap: 0;
-  max-width: 600px;
-  border: 1px solid var(--border-mid);
-}
-.join-form input {
-  flex: 1;
-  min-width: 120px;
-  background: var(--bg-card);
-  border: none;
-  border-right: 1px solid var(--border-mid);
-  color: var(--text);
-  font-family: var(--f-body);
-  font-size: 0.95rem;
-  font-weight: 500;
-  padding: 1.1rem 1.2rem;
-  outline: none;
-  transition: background 0.2s;
-}
-.join-form input:focus { background: #181412; }
-.join-form input::placeholder { color: var(--muted); }
-.btn-join {
-  background: var(--red);
-  color: var(--text);
-  border: none;
-  padding: 1.1rem 2rem;
-  font-family: var(--f-label);
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  cursor: pointer;
-  white-space: nowrap;
-  position: relative;
-  overflow: hidden;
-  transition: background 0.2s;
-}
-.btn-join:hover { background: #a83416; }
-.btn-join.done { background: var(--teal); cursor: default; }
-.join-disclaimer {
-  font-family: var(--f-label);
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-top: 1.4rem;
+.stat-lbl{
+  font-family:var(--f-ui);font-size:.65rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);
 }
 
-.join-footer-bar {
-  border-top: 1px solid var(--border);
-  padding: 2.5rem 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 2rem;
-  align-items: end;
+/* ─────────────────────────────────────────────
+   JOIN
+───────────────────────────────────────────── */
+.join-section{
+  padding:5rem 0;
+  background:var(--paper);
+  border-top:1px solid var(--rule);
 }
-.footer-col {
-  font-family: var(--f-label);
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-  text-transform: uppercase;
-  line-height: 2.2;
+.join-inner{max-width:680px;margin:0 auto;text-align:center;padding:0 2rem;}
+.join-label{
+  font-family:var(--f-ui);font-size:.65rem;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--red);margin-bottom:1.25rem;
 }
-.footer-col a {
-  color: var(--muted);
-  text-decoration: none;
-  transition: color 0.2s;
+.join-headline{
+  font-family:var(--f-disp);font-size:clamp(2rem,4vw,3rem);
+  font-weight:900;line-height:1.08;letter-spacing:-.025em;
+  color:var(--ink);margin-bottom:1.25rem;
 }
-.footer-col a:hover { color: var(--text-dim); }
-.footer-col-center { text-align: center; }
-.footer-col-right { text-align: right; }
-.footer-no-fund {
-  grid-column: 1 / -1;
-  border-top: 1px solid var(--border);
-  padding-top: 1.5rem;
-  margin-top: 0.5rem;
-  font-family: var(--f-body);
-  font-size: 0.82rem;
-  font-style: italic;
-  color: var(--muted);
-  text-align: center;
+.join-headline em{font-style:italic;color:var(--red);}
+.join-sub{
+  font-family:var(--f-body);font-size:1rem;font-style:italic;
+  line-height:1.75;color:var(--ink-3);margin-bottom:.5rem;
+}
+.join-context{
+  font-family:var(--f-ui);font-size:.8rem;color:var(--ink-4);
+  margin-bottom:2rem;letter-spacing:.02em;
+}
+.join-form{
+  display:flex;gap:0;max-width:500px;margin:0 auto 1rem;
+}
+.join-form .f-input{
+  flex:1;border-right:none;
+  background:var(--paper-2);
+}
+.join-form .f-input:focus{border-color:var(--ink);z-index:1;}
+.join-form .f-input+.f-input{border-left:1px solid var(--paper-4);}
+.btn-join-submit{
+  background:var(--ink);color:var(--paper);
+  font-family:var(--f-ui);font-size:.72rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:.75rem 1.4rem;border:none;cursor:pointer;
+  transition:background .2s;white-space:nowrap;flex-shrink:0;
+}
+.btn-join-submit:hover{background:var(--red);}
+.join-small{font-family:var(--f-ui);font-size:.65rem;color:var(--ink-5);}
+
+/* ─────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────── */
+footer{background:var(--ink);padding:3rem 0 2rem;}
+.footer-inner{max-width:var(--w);margin:0 auto;padding:0 2rem;}
+.footer-top{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:3rem;
+  padding-bottom:2rem;border-bottom:1px solid rgba(255,255,255,.07);
+  margin-bottom:1.75rem;
+}
+.foot-logo{
+  font-family:var(--f-disp);font-size:1.35rem;font-weight:900;
+  color:var(--paper);margin-bottom:.6rem;letter-spacing:-.02em;
+}
+.foot-logo em{color:var(--red);font-style:italic;}
+.foot-tagline{
+  font-family:var(--f-body);font-size:.85rem;font-style:italic;
+  color:rgba(246,241,232,.35);line-height:1.65;margin-bottom:1rem;
+}
+.foot-email a{
+  font-family:var(--f-ui);font-size:.75rem;color:rgba(246,241,232,.35);
+  transition:color .2s;
+}
+.foot-email a:hover{color:var(--paper);}
+.foot-social{display:flex;gap:.75rem;margin-top:.85rem;}
+.foot-social a{
+  font-family:var(--f-ui);font-size:.62rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(246,241,232,.3);
+  border:1px solid rgba(255,255,255,.1);padding:.3rem .75rem;
+  transition:all .2s;
+}
+.foot-social a:hover{color:var(--paper);border-color:rgba(255,255,255,.35);}
+.foot-col-head{
+  font-family:var(--f-ui);font-size:.6rem;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(246,241,232,.25);margin-bottom:.9rem;
+  padding-bottom:.5rem;border-bottom:1px solid rgba(255,255,255,.06);
+}
+.foot-links{display:flex;flex-direction:column;gap:.55rem;}
+.foot-links a{
+  font-family:var(--f-ui);font-size:.8rem;
+  color:rgba(246,241,232,.4);transition:color .2s;
+}
+.foot-links a:hover{color:var(--paper);}
+.foot-about p{
+  font-family:var(--f-ui);font-size:.78rem;line-height:1.7;
+  color:rgba(246,241,232,.3);
+}
+.footer-bottom{
+  display:flex;justify-content:space-between;align-items:center;
+}
+.foot-copy{
+  font-family:var(--f-ui);font-size:.65rem;color:rgba(246,241,232,.2);
+}
+.foot-indie{
+  font-family:var(--f-body);font-size:.72rem;font-style:italic;
+  color:rgba(246,241,232,.15);
 }
 
-/* =============================================
-   SCROLL REVEAL UTILITY
-============================================= */
-.reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.55s ease, transform 0.55s ease;
+/* ─────────────────────────────────────────────
+   SUBMIT MODAL
+───────────────────────────────────────────── */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(24,18,16,.88);
+  backdrop-filter:blur(4px);
+  z-index:500;display:none;
+  align-items:center;justify-content:center;padding:1rem;
 }
-.reveal.visible { opacity: 1; transform: translateY(0); }
-
-/* =============================================
-   LOADING STATE
-============================================= */
-.skeleton {
-  background: linear-gradient(90deg, var(--bg-card) 25%, var(--border) 50%, var(--bg-card) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
-  border-radius: 2px;
-  height: 1.2em;
-  margin-bottom: 0.5rem;
+.overlay.open{display:flex;}
+.modal-box{
+  background:var(--paper);max-width:600px;width:100%;
+  max-height:90vh;overflow-y:auto;
 }
-@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.modal-top{
+  padding:1.75rem 2rem 1.5rem;border-bottom:1px solid var(--rule);
+  display:flex;justify-content:space-between;align-items:flex-start;
+}
+.modal-title{
+  font-family:var(--f-disp);font-size:1.4rem;font-weight:900;
+  color:var(--ink);line-height:1.1;
+}
+.modal-close{font-size:1.1rem;color:var(--ink-4);padding:.2rem;transition:color .2s;}
+.modal-close:hover{color:var(--ink);}
+.modal-body{padding:1.75rem 2rem;}
+.guidelines-box{
+  background:var(--paper-2);border-left:3px solid var(--gold);
+  padding:1rem 1.2rem;margin-bottom:1.5rem;
+}
+.guidelines-box p{
+  font-family:var(--f-ui);font-size:.78rem;line-height:1.6;
+  color:var(--ink-3);margin-bottom:.35rem;
+}
+.guidelines-box ul{list-style:none;}
+.guidelines-box li{
+  font-family:var(--f-ui);font-size:.75rem;color:var(--ink-3);
+  padding:.18rem 0 .18rem .9rem;position:relative;line-height:1.5;
+}
+.guidelines-box li::before{content:'—';position:absolute;left:0;color:var(--gold);}
+.modal-foot{
+  padding:1.25rem 2rem;border-top:1px solid var(--rule);
+  display:flex;gap:.75rem;justify-content:flex-end;
+}
+.btn-cancel{
+  font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-3);border:1px solid var(--paper-4);
+  padding:.65rem 1.3rem;transition:all .2s;
+}
+.btn-cancel:hover{border-color:var(--ink);color:var(--ink);}
+.btn-send{
+  font-family:var(--f-ui);font-size:.72rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  background:var(--red);color:var(--paper);
+  padding:.65rem 1.5rem;border:none;cursor:pointer;transition:background .2s;
+}
+.btn-send:hover{background:var(--red-2);}
+.btn-send:disabled{background:var(--ink-4);cursor:default;}
+#sub-err{
+  font-family:var(--f-ui);font-size:.75rem;color:var(--red);
+  min-height:1em;margin-top:.5rem;
+}
 
-/* =============================================
+/* ─────────────────────────────────────────────
+   TOAST
+───────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:1.75rem;right:1.75rem;
+  background:var(--ink);color:var(--paper);
+  border-left:3px solid var(--teal);
+  padding:.9rem 1.4rem;
+  font-family:var(--f-ui);font-size:.8rem;
+  z-index:600;max-width:300px;line-height:1.5;
+  transform:translateY(20px);opacity:0;
+  transition:transform .25s ease,opacity .25s ease;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.err{border-left-color:var(--red);}
+
+/* ─────────────────────────────────────────────
+   SKELETON
+───────────────────────────────────────────── */
+.skel{
+  background:linear-gradient(90deg,var(--paper-3) 25%,var(--paper-2) 50%,var(--paper-3) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;
+}
+.skel-dark{
+  background:linear-gradient(90deg,rgba(255,255,255,.05) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.05) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;
+}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* ─────────────────────────────────────────────
    RESPONSIVE
-============================================= */
-@media(max-width:900px){
-  nav { padding: 1rem 1.5rem; }
-  .nav-links { display: none; }
-  #hero, .section-wrap, #join { padding-left: 1.5rem; padding-right: 1.5rem; }
-  .demand-row { grid-template-columns: 56px 1fr; }
-  .demand-text { padding-right: 0; }
-  .articles-header, .article-row { grid-template-columns: 32px 1fr; }
-  .articles-header span:last-child,
-  .article-row .article-byline { display: none; }
-  #stats-container { grid-template-columns: 1fr 1fr; }
-  .stat-cell:nth-child(2) { border-right: none; }
-  .stat-cell:nth-child(3) { border-top: 1px solid var(--border); border-right: 1px solid var(--border); }
-  .stat-cell:nth-child(4) { border-top: 1px solid var(--border); border-right: none; }
-  .join-form { flex-wrap: wrap; }
-  .join-form input { border-right: 1px solid var(--border-mid); border-bottom: 1px solid var(--border-mid); }
-  .join-footer-bar { grid-template-columns: 1fr; gap: 0; }
-  .footer-col-center, .footer-col-right { text-align: left; }
-  .take-row { margin-left: -1.5rem; padding-right: 1.5rem; }
-  .article-row:hover { margin: 0 -1.5rem; padding: 1.4rem 1.5rem; }
-  .pick-card { padding: 1.8rem; }
-  .submit-row { grid-template-columns: 1fr; }
-  .submit-form input:first-child { border-bottom: 1px solid var(--border); border-right: none; }
+───────────────────────────────────────────── */
+@media(max-width:960px){
+  .dispatches-layout{grid-template-columns:1fr;}
+  .d-rule{display:none;}
+  .dispatches-aside{padding-left:0;padding-top:2rem;border-top:1px solid var(--rule);}
+  .dispatches-main{padding-right:0;}
+  .petition-inner{grid-template-columns:1fr;gap:2rem;}
+  .takes-grid{grid-template-columns:1fr;}
+  .take-card{border-right:none;border-bottom:1px solid var(--rule-heavy);}
+  .take-card:last-child{border-bottom:none;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .footer-top{grid-template-columns:1fr;gap:2rem;}
+  .nav-links{display:none;}
+  .nav-inner{grid-template-columns:auto 1fr;}
+  .nav-right .nav-join{display:none;}
+  .pick-inner{grid-template-columns:1fr;}
+  .pick-label-col{display:none;}
+}
+@media(max-width:640px){
+  .hero-headline{font-size:2.2rem;}
+  .hero-proof{gap:1.5rem;}
+  .wrap{padding:0 1.25rem;}
+  .demand-row{padding:1.5rem 1.25rem;}
+  .records-grid{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .join-form{flex-direction:column;}
+  .join-form .f-input{border-right:1px solid var(--paper-4)!important;}
+  .join-form .f-input+.f-input{border-top:none;}
+  .alert-bar-count{display:none!important;}
 }
 </style>
 </head>
 <body>
 
-<!-- =============================================
-     SUPABASE CONFIG
-     Fill SUPABASE_URL and SUPABASE_ANON_KEY to go live.
-     All mock data below mirrors the exact Supabase row shape.
-============================================= -->
-<script>
-// ================================================================
-// SUPABASE — LIVE
-// Project: anzeuwhetgqvavbjpuxd
-// ================================================================
-const SUPABASE_URL      = 'https://anzeuwhetgqvavbjpuxd.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuemV1d2hldGdxdmF2YmpwdXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NjM5MjgsImV4cCI6MjA5NTQzOTkyOH0.46MCQ8h2D-poRKlx_G5NJlfOqzB7I4IoPZC2Q684mK0';
+<!-- ── PETITION ALERT BAR (sticky) ──────────────────────────── -->
+<div class="alert-bar" id="alert-bar" role="complementary">
+  <div class="alert-bar-inner">
+    <p id="alert-text"><strong>Sign now:</strong> Restore Student Union Elections in All Central Universities.</p>
+    <button class="alert-bar-btn" onclick="document.getElementById('petition').scrollIntoView({behavior:'smooth'})">Sign →</button>
+    <span class="alert-bar-count" id="alert-count" aria-live="polite"></span>
+  </div>
+</div>
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// ================================================================
-// TICKER CONTENT — static, not in DB
-// ================================================================
-const TICKER_1 = [
-  { text: 'Speak Up Or Step Aside' },
-  { text: 'Your silence is also a vote' },
-  { text: 'Accountability is not optional' },
-];
-const TICKER_2 = [
-  'Liberty','Justice','Dissent','Dignity','Truth','Equity','Courage','Rights','Voice','Reform'
-];
-
-// ================================================================
-// DATA FETCHERS — all live Supabase
-// ================================================================
-
-async function fetchDemands() {
-  const { data, error } = await sb
-    .from('demands')
-    .select('*')
-    .eq('active', true)
-    .order('number');
-  if (error) throw error;
-  return data;
-}
-
-async function fetchDemandsUpdated() {
-  const { data, error } = await sb
-    .from('site_config')
-    .select('value')
-    .eq('key', 'demands_updated')
-    .single();
-  if (error) return 'January 2025';
-  return data.value;
-}
-
-async function fetchArticles() {
-  const { data, error } = await sb
-    .from('articles')
-    .select('*')
-    .eq('published', true)
-    .order('created_at', { ascending: false });
-  if (error) throw error;
-  return data;
-}
-
-async function fetchHotTakes() {
-  const { data, error } = await sb
-    .from('hot_takes')
-    .select('*')
-    .eq('published', true)
-    .order('created_at', { ascending: false })
-    .limit(3);
-  if (error) throw error;
-  return data;
-}
-
-async function fetchPetition() {
-  const { data: petition, error } = await sb
-    .from('petitions')
-    .select('*')
-    .eq('active', true)
-    .single();
-  if (error) throw error;
-
-  // use the public view — doesn't expose individual emails
-  const { data: countRow } = await sb
-    .from('petition_counts')
-    .select('signature_count')
-    .eq('petition_id', petition.id)
-    .single();
-
-  return { petition, count: countRow ? Number(countRow.signature_count) : 0 };
-}
-
-async function fetchRecords() {
-  const { data, error } = await sb
-    .from('records')
-    .select('*')
-    .eq('active', true)
-    .order('id');
-  if (error) throw error;
-  return data;
-}
-
-async function fetchStats() {
-  const { data, error } = await sb
-    .from('stats')
-    .select('*')
-    .order('display_order');
-  if (error) throw error;
-  return data;
-}
-
-// ================================================================
-// INSERT FUNCTIONS
-// ================================================================
-
-async function insertSignature(petition_id, name, email) {
-  const { error } = await sb
-    .from('petition_sigs')
-    .insert({ petition_id, name, email });
-  // unique constraint throws if already signed — surface that
-  if (error) {
-    if (error.code === '23505') throw new Error('already_signed');
-    throw error;
-  }
-}
-
-async function insertMember(name, email, city) {
-  const { error } = await sb
-    .from('members')
-    .insert({ name, email, city });
-  // unique email — silently ignore duplicates
-  if (error && error.code !== '23505') throw error;
-}
-
-async function insertSubmission(name, email, content) {
-  const { error } = await sb
-    .from('submissions')
-    .insert({ name, email, content, status: 'pending' });
-  if (error) throw error;
-}
-</script>
-
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">Youth<b>Front</b> India</div>
-  <ul class="nav-links">
-    <li><a href="#demands">Demands</a></li>
-    <li><a href="#petition">Petitions</a></li>
-    <li><a href="#submit">Write</a></li>
-  </ul>
-  <a href="#join" class="nav-cta">Join →</a>
+<!-- ── NAV ────────────────────────────────────────────────────── -->
+<nav class="site-nav" role="navigation" aria-label="Site navigation">
+  <div class="nav-inner">
+    <div class="nav-links">
+      <a href="#demands">Demands</a>
+      <a href="#dispatches">Dispatches</a>
+      <a href="#record">On Record</a>
+      <a href="#petition">Petition</a>
+    </div>
+    <div class="nav-wordmark">
+      <a href="/">Youth<em>Front</em> India</a>
+      <p class="sub">Independent · Est. 2026</p>
+    </div>
+    <div class="nav-right">
+      <a href="mailto:youthfront.in@gmail.com">Contact</a>
+      <button class="nav-join" onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'})">Join →</button>
+    </div>
+  </div>
 </nav>
 
-<!-- HERO -->
-<section id="hero">
+<main>
+
+<!-- ── HERO ───────────────────────────────────────────────────── -->
+<section class="hero" aria-labelledby="hero-h1">
   <div class="hero-inner">
-    <p class="hero-meta">Est. 2026 &nbsp;·&nbsp; India</p>
-    <h1 class="hero-name">Youth<br><span class="accent">Front.</span></h1>
-    <div class="hero-divider"></div>
-    <div class="hero-tagline-wrap">
-      <p class="hero-tagline" id="typewriter"><span class="cursor"></span></p>
+
+    <div class="hero-kicker">
+      <div class="hero-kicker-line"></div>
+      <span>YouthFront India</span>
     </div>
-  </div>
-  <div class="hero-bottom">
-    <span class="hero-scroll-hint">Scroll</span>
-    <a href="mailto:youthfront.in@gmail.com" class="hero-email">youthfront.in@gmail.com</a>
-  </div>
-</section>
 
-<!-- TICKER 1 — punchlines -->
-<div class="ticker-band ticker-band-1" id="ticker-1" aria-hidden="true">
-  <div class="ticker-track ticker-track-1" id="ticker1-track"></div>
-</div>
+    <h1 class="hero-headline" id="hero-h1">
+      Many decided this<br>was <em>acceptable.</em><br>We didn't.
+    </h1>
 
-<!-- DEMANDS -->
-<section id="demands">
-  <div class="section-wrap">
-    <p class="sec-head">What We Demand</p>
-    <h2 class="sec-title reveal">Five demands.<br>Non-negotiable.</h2>
-    <p class="demands-updated reveal" id="demands-updated"></p>
-    <div id="demands-container"></div>
-  </div>
-</section>
+    <p class="hero-subtext">
+      An independent platform for India's youth. publishing Articles, essays, demands and petitions
+      on <strong>student rights, press freedom, employment and climate policy.</strong>
+      No party line. No funding. No softening.
+    </p>
 
-<!-- TICKER 2 — single words -->
-<div class="ticker-band ticker-band-2" id="ticker-2" aria-hidden="true">
-  <div class="ticker-track ticker-track-2" id="ticker2-track"></div>
-</div>
-
-<!-- ON THE RECORD -->
-<section id="record">
-  <div class="section-wrap">
-    <p class="sec-head">On The Record</p>
-    <h2 class="sec-title reveal">Facts. Sourced.<br>Undeniable.</h2>
-    <p class="record-intro reveal">...........................</p>
-    <div id="record-container"></div>
-  </div>
-</section>
-
-<!-- DISPATCHES -->
-<section id="dispatches">
-  <div class="section-wrap">
-    <p class="sec-head">Dispatches</p>
-    <h2 class="sec-title reveal">Written by Indians<br>under 30.</h2>
-    <p class="reveal" style="font-family:var(--f-body);color:var(--muted-hi);font-size:1rem;font-style:italic;margin-bottom:3.5rem">Edited by us. No filter except quality.</p>
-
-    <p class="editors-pick-label reveal">— Editor's Pick</p>
-    <div id="pick-container"></div>
-
-    <div class="articles-header reveal">
-      <span>#</span>
-      <span>Article</span>
-      <span style="text-align:right">Author · City</span>
+    <div class="hero-actions">
+      <button class="btn-hero-primary" onclick="document.getElementById('dispatches').scrollIntoView({behavior:'smooth'})">Read the Dispatches</button>
+      <button class="btn-hero-ghost" onclick="document.getElementById('demands').scrollIntoView({behavior:'smooth'})">See Our Demands →</button>
     </div>
-    <div id="articles-container"></div>
-    <a href="#" class="archive-link reveal">Read the Archive →</a>
-  </div>
-</section>
 
-<!-- HOT TAKES -->
-<section id="hottakes">
-  <div class="section-wrap">
-    <p class="sec-head">Hot Takes</p>
-    <h2 class="sec-title reveal">What we'd say<br>if we stopped<br>being polite.</h2>
-    <div id="hottakes-container"></div>
-  </div>
-</section>
-
-<!-- PETITION -->
-<section id="petition">
-  <div class="section-wrap">
-    <p class="sec-head">Sign This</p>
-    <h2 class="sec-title reveal">Active Petition.</h2>
-    <p class="petition-title reveal" id="petition-title"></p>
-    <div class="counter-block">
-      <span class="counter-num" id="counter">0</span>
-      <div class="counter-sub">
-        <span>have signed</span>
-        <span class="counter-goal" id="counter-goal"></span>
+    <div class="hero-proof" id="hero-proof">
+      <!-- filled by stats from Supabase -->
+      <div class="hero-proof-item">
+        <div class="hero-proof-num skel-dark" style="width:80px;height:1.8rem;display:block;border-radius:2px"></div>
+        <div class="hero-proof-label" style="margin-top:.4rem">loading</div>
       </div>
     </div>
-    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-    <div class="petition-form">
-      <input type="text" placeholder="Name" id="petName">
-      <input type="email" placeholder="Email" id="petEmail">
-      <button class="btn-sign" onclick="signPetition()">Sign →</button>
+
+  </div>
+</section>
+
+<!-- ── EDITOR'S PICK ──────────────────────────────────────────── -->
+<div class="pick-band" id="pick-band">
+  <div class="pick-inner">
+    <div class="pick-label-col">
+      <span class="pick-label">Editor's Pick</span>
     </div>
-    <p class="form-msg" id="petMsg"></p>
+    <div class="pick-content" id="pick-content">
+      <p class="pick-overline">Loading…</p>
+      <div class="skel" style="height:2rem;width:70%;margin-bottom:.75rem;border-radius:2px"></div>
+      <div class="skel" style="height:1rem;width:90%;margin-bottom:.4rem;border-radius:2px"></div>
+      <div class="skel" style="height:1rem;width:60%;border-radius:2px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DEMANDS ────────────────────────────────────────────────── -->
+<section class="demands-section" id="demands" aria-labelledby="demands-h2">
+  <div class="demands-top">
+    <p class="demands-label">What We Demand</p>
+    <h2 class="demands-intro" id="demands-h2">
+      Five demands.<br>Non-negotiable.<br><em>Still waiting.</em>
+    </h2>
+    <p class="demands-updated-txt" id="demands-updated">Last updated: January 2025. These change when the ground changes.</p>
+  </div>
+  <div class="demands-list" id="demands-list" role="list">
+    <!-- skeleton rows -->
+    <div class="demand-row"><span class="demand-n">—</span><div class="skel-dark" style="height:1.3rem;width:65%;border-radius:2px;align-self:center"></div></div>
+    <div class="demand-row"><span class="demand-n">—</span><div class="skel-dark" style="height:1.3rem;width:50%;border-radius:2px;align-self:center"></div></div>
+    <div class="demand-row"><span class="demand-n">—</span><div class="skel-dark" style="height:1.3rem;width:72%;border-radius:2px;align-self:center"></div></div>
+    <div class="demand-row"><span class="demand-n">—</span><div class="skel-dark" style="height:1.3rem;width:58%;border-radius:2px;align-self:center"></div></div>
+    <div class="demand-row"><span class="demand-n">—</span><div class="skel-dark" style="height:1.3rem;width:45%;border-radius:2px;align-self:center"></div></div>
   </div>
 </section>
 
-<!-- BY THE NUMBERS -->
-<section id="numbers">
-  <div class="section-wrap">
-    <p class="sec-head">By The Numbers</p>
-    <h2 class="sec-title reveal">Proof of pulse.</h2>
-    <div id="stats-container"></div>
+<!-- ── ON THE RECORD ──────────────────────────────────────────── -->
+<section class="records-section" id="record" aria-labelledby="records-h2">
+  <div class="wrap">
+    <div class="sec-head red">
+      <h2 class="sec-title" id="records-h2">On The Record</h2>
+      <span class="sec-sub">Facts. Sourced. Undeniable.</span>
+    </div>
+    <div class="records-grid" id="records-grid" role="list">
+      <!-- filled by JS -->
+    </div>
   </div>
 </section>
 
-<!-- SUBMIT -->
-<section id="submit">
-  <div class="section-wrap">
-    <p class="sec-head">Say Something</p>
-    <p class="submit-callout reveal">Got something to say?<br>We're listening.</p>
-    <p class="submit-sub reveal">Write it. Send it. If it holds up, it goes up.<br>We don't publish everything. We publish what matters.</p>
-    <div class="submit-form reveal">
-      <div class="submit-row">
-        <input type="text" placeholder="Your name" id="subName">
-        <input type="email" placeholder="Your email" id="subEmail">
+<!-- ── HOT TAKES ──────────────────────────────────────────────── -->
+<section class="takes-section" id="takes" aria-labelledby="takes-h2">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title" id="takes-h2">Hot Takes</h2>
+      <span class="sec-sub">Unfiltered. Attributed. From across India.</span>
+    </div>
+    <div class="takes-grid" id="takes-grid">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</section>
+
+<!-- ── DISPATCHES ─────────────────────────────────────────────── -->
+<section class="dispatches-section" id="dispatches" aria-labelledby="dispatches-h2">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title" id="dispatches-h2">Dispatches</h2>
+      <span class="sec-sub">Essays by Indians under 30</span>
+    </div>
+    <div class="dispatches-layout">
+      <div class="dispatches-main" id="dispatches-main">
+        <!-- filled by JS -->
       </div>
-      <textarea id="subContent" placeholder="Your piece, take, or pitch. Make it real."></textarea>
-      <button class="btn-submit" onclick="submitPiece()">
-        <span>Submit your piece</span>
-        <span class="arr">→</span>
-      </button>
+      <div class="d-rule"></div>
+      <aside class="dispatches-aside">
+        <p class="aside-label">Write For Us</p>
+        <div class="write-box">
+          <p class="write-box-title">Got something to say? Say it here.</p>
+          <p>We publish pieces that are specific, argued, and honest about what they're claiming. We don't want balance. We want truth.</p>
+          <ul class="write-guidelines">
+            <li>600–1500 words</li>
+            <li>Real name and city — always</li>
+            <li>Any issue affecting Indians under 30</li>
+            <li>We respond within 7 days</li>
+            <li>We edit; you approve every change</li>
+          </ul>
+          <button class="btn-write" onclick="openModal()">Submit Your Piece →</button>
+        </div>
+      </aside>
     </div>
-    <p class="form-msg" id="subMsg" style="margin-top:1rem"></p>
   </div>
 </section>
 
-<!-- JOIN / FOOTER -->
-<section id="join">
+<!-- ── PETITION ───────────────────────────────────────────────── -->
+<section class="petition-section" id="petition" aria-labelledby="petition-h2">
+  <div class="wrap">
+    <div class="petition-inner">
+      <div id="petition-left">
+        <!-- filled by JS -->
+        <div class="skel-dark" style="height:.8rem;width:180px;border-radius:2px;margin-bottom:1rem"></div>
+        <div class="skel-dark" style="height:2rem;width:80%;border-radius:2px;margin-bottom:.5rem"></div>
+        <div class="skel-dark" style="height:2rem;width:60%;border-radius:2px;margin-bottom:1.75rem"></div>
+        <div class="skel-dark" style="height:3rem;width:140px;border-radius:2px"></div>
+      </div>
+      <div>
+        <div class="pet-form-box">
+          <p class="pet-form-title">Add your name.<br>It matters.</p>
+          <div class="f-field">
+            <label class="f-label" for="sig-name">Full Name</label>
+            <input class="f-input" id="sig-name" type="text" placeholder="Your name" autocomplete="name">
+          </div>
+          <div class="f-field">
+            <label class="f-label" for="sig-email">Email Address</label>
+            <input class="f-input" id="sig-email" type="email" placeholder="your@email.com" autocomplete="email">
+          </div>
+          <button class="btn-sign" id="btn-sign" onclick="submitSig()">
+            <span id="sign-txt">Sign the Petition →</span>
+          </button>
+          <p class="pet-disclaimer">Your email is NEVER shared publicly. One signature per address. You'll receive petition updates from YouthFront India.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ──────────────────────────────────────────────────── -->
+<div class="stats-band" role="complementary" aria-label="By the numbers">
+  <div class="wrap">
+    <div class="stats-grid" id="stats-grid">
+      <!-- filled by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ── JOIN ───────────────────────────────────────────────────── -->
+<section class="join-section" id="join" aria-labelledby="join-h2">
   <div class="join-inner">
-    <h2 class="join-tagline">Because the<br>Youth has <em>words.</em></h2>
+    <p class="join-label">Join the Movement</p>
+    <h2 class="join-headline" id="join-h2">
+      Because the youth<br>has <em>words.</em>
+    </h2>
     <p class="join-sub">Leave your mark. Write your line.</p>
+    <p class="join-context" id="join-context">Join the movement — you'll hear from us when we publish and when we march.</p>
     <div class="join-form">
-      <input type="text" placeholder="Name" id="joinName">
-      <input type="email" placeholder="Email" id="joinEmail">
-      <input type="text" placeholder="City" id="joinCity">
-      <button class="btn-join" onclick="joinMovement(this)" id="joinBtn">I'M IN →</button>
+      <input class="f-input" id="join-name" type="text" placeholder="Your name" autocomplete="name">
+      <input class="f-input" id="join-email" type="email" placeholder="your@email.com" autocomplete="email">
+      <button class="btn-join-submit" onclick="submitJoin()">I'm In →</button>
     </div>
-    <p class="join-disclaimer">The movement doesn't need your applause. It needs your name.</p>
-  </div>
-  <div class="join-footer-bar">
-    <div class="footer-col">
-      YouthFront India · New Delhi<br>
-      <a href="mailto:youthfront.in@gmail.com">youthfront.in@gmail.com</a><br>
-      <a href="#">Instagram</a> &nbsp;·&nbsp; <a href="#">X</a> &nbsp;·&nbsp; <a href="#">Discord</a>
-    </div>
-    <div class="footer-col footer-col-center">
-      youthfrontindia.pages.dev
-    </div>
-    <div class="footer-col footer-col-right">
-      © YouthFront India 2026<br>
-      Est. New Delhi, India
-    </div>
-    <p class="footer-no-fund">independent.</p>
+    <p class="join-small">No spam. No party. Just dispatches from the front.</p>
   </div>
 </section>
 
-<!-- =============================================
-     RENDER + LOGIC
-============================================= -->
+</main>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <p class="foot-logo">Youth<em>Front</em> India</p>
+        <p class="foot-tagline">"Because the youth has words."</p>
+        <p class="foot-email"><a href="mailto:youthfront.in@gmail.com">youthfront.in@gmail.com</a></p>
+        <div class="foot-social">
+          <a href="https://instagram.com/youthfrontindia" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://x.com/youthfrontindia" target="_blank" rel="noopener">X / Twitter</a>
+          <a href="https://discord.com" target="_blank" rel="noopener">Discord</a>
+        </div>
+      </div>
+      <div>
+        <p class="foot-col-head">Navigate</p>
+        <div class="foot-links">
+          <a href="#demands">What We Demand</a>
+          <a href="#record">On The Record</a>
+          <a href="#dispatches">Dispatches</a>
+          <a href="#takes">Hot Takes</a>
+          <a href="#petition">Sign the Petition</a>
+          <a href="#join">Join</a>
+        </div>
+      </div>
+      <div class="foot-about">
+        <p class="foot-col-head">About</p>
+        <p>YouthFront India is an independent editorial platform. We are not affiliated with any political party and accept no funding. Every piece carries a name.</p>
+        <p style="margin-top:.75rem;color:rgba(246,241,232,.2);">Est. 2026 · New Delhi, India</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="foot-copy">© YouthFront India 2026.</p>
+      <p class="foot-indie">independent. unsponsored. unsilenced.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ── SUBMIT MODAL ───────────────────────────────────────────── -->
+<div class="overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-h">
+  <div class="modal-box">
+    <div class="modal-top">
+      <h3 class="modal-title" id="modal-h">Submit Your Piece</h3>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="guidelines-box">
+        <p><strong>What we publish:</strong> Specific, argued, honest — on issues that affect Indians under 30.</p>
+        <ul>
+          <li>600–1500 words. Longer if it earns the length.</li>
+          <li>Any issue — student rights, employment, climate, press freedom, human rights.</li>
+          <li>Real name and city. No anonymous submissions.</li>
+          <li>We respond within 7 days. You approve all edits before publication.</li>
+        </ul>
+      </div>
+      <div class="f-field">
+        <label class="f-label" for="sub-name">Your Name *</label>
+        <input class="f-input" id="sub-name" type="text" placeholder="Full name" autocomplete="name">
+      </div>
+      <div class="f-field">
+        <label class="f-label" for="sub-email">Email Address *</label>
+        <input class="f-input" id="sub-email" type="email" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="f-field">
+        <label class="f-label" for="sub-content">Your Piece *</label>
+        <textarea class="f-input" id="sub-content" rows="10"
+          style="resize:vertical;min-height:180px;font-family:var(--f-body);font-size:.92rem;line-height:1.75"
+          placeholder="Paste your full piece here — title, body, all of it."></textarea>
+      </div>
+      <p id="sub-err"></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-send" id="btn-sub" onclick="submitPiece()">Send It →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ──────────────────────────────────────────────────── -->
+<div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+<!-- ── SCRIPT ─────────────────────────────────────────────────── -->
 <script>
-// ─── TYPEWRITER ───
-const TW_LINES = [
-  'Because the Youth has words.',
-  'Done waiting for permission.',
-  'The system is not broken. it is working as designed.'
-];
-let tl = 0, tc = 0, tDel = false;
-const twEl = document.getElementById('typewriter');
-function typeStep() {
-  const cur = TW_LINES[tl];
-  if (!tDel) {
-    tc++;
-    twEl.innerHTML = cur.slice(0, tc) + '<span class="cursor"></span>';
-    if (tc === cur.length) { tDel = true; setTimeout(typeStep, 2400); return; }
-    setTimeout(typeStep, 52);
-  } else {
-    tc--;
-    twEl.innerHTML = cur.slice(0, tc) + '<span class="cursor"></span>';
-    if (tc === 0) { tDel = false; tl = (tl + 1) % TW_LINES.length; setTimeout(typeStep, 380); return; }
-    setTimeout(typeStep, 26);
+const SUPABASE_URL      = 'https://anzeuwhetgqvavbjpuxd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuemV1d2hldGdxdmF2YmpwdXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NjM5MjgsImV4cCI6MjA5NTQzOTkyOH0.46MCQ8h2D-poRKlx_G5NJlfOqzB7I4IoPZC2Q684mK0';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const SIG_THRESHOLD = 50;
+let PETITION_ID = null;
+let toastT;
+
+/* ── UTILS ── */
+const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function toast(msg, err=false){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (err?' err':'');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>el.classList.remove('show'), 4200);
+}
+
+/* ── BOOT ── */
+async function boot(){
+  const [
+    {data:demands}, {data:cfg},
+    {data:articles}, {data:takes},
+    {data:records},  {data:stats},
+    {data:petitions}
+  ] = await Promise.all([
+    sb.from('demands').select('*').eq('active',true).order('number'),
+    sb.from('site_config').select('value').eq('key','demands_updated').single(),
+    sb.from('articles').select('*').eq('published',true).order('created_at',{ascending:false}),
+    sb.from('hot_takes').select('*').eq('published',true).order('created_at',{ascending:false}).limit(3),
+    sb.from('records').select('*').eq('active',true).order('id'),
+    sb.from('stats').select('*').order('display_order'),
+    sb.from('petitions').select('*').eq('active',true).limit(1)
+  ]);
+
+  renderHero(articles||[]);
+  renderPick(articles||[]);
+  renderDemands(demands||[], cfg?.value||'January 2025');
+  renderRecords(records||[]);
+  renderTakes(takes||[]);
+  renderDispatches(articles||[]);
+  renderStats(stats||[]);
+
+  const pet = (petitions||[])[0]||null;
+  if(pet){
+    PETITION_ID = pet.id;
+    const {data:cnt} = await sb.from('petition_counts')
+      .select('signature_count').eq('petition_id',pet.id).single();
+    renderPetition(pet, cnt ? Number(cnt.signature_count) : 0);
   }
 }
-setTimeout(typeStep, 900);
 
-// ─── TICKERS ───
-function buildTicker1(items) {
-  const track = document.getElementById('ticker1-track');
-  const doubled = [...items, ...items];
-  track.innerHTML = doubled.map((item, i) =>
-    `<span class="ticker-item-1">${item.text.toUpperCase()}</span>` +
-    (i < doubled.length - 1 ? '<span class="ticker-sep-1">◆</span>' : '')
-  ).join('');
-}
-function buildTicker2(words) {
-  const track = document.getElementById('ticker2-track');
-  const doubled = [...words, ...words];
-  track.innerHTML = doubled.map((w, i) =>
-    `<span class="ticker-item-2">${w}</span>` +
-    (i < doubled.length - 1 ? '<span class="ticker-sep-2">·</span>' : '')
-  ).join('');
+/* ── HERO PROOF STATS ── */
+function renderHero(articles){
+  const proof = document.getElementById('hero-proof');
+  const citySet = new Set(articles.map(a=>a.city).filter(Boolean));
+  const items = [
+    {n: articles.length || '—', l: 'Dispatches published'},
+    {n: citySet.size>0 ? citySet.size+'+' : '—', l: 'Cities represented'},
+    {n: 'No', l: 'Party affiliation'},
+    {n: 'No', l: 'Corporate funding'},
+  ];
+  proof.innerHTML = items.map(i=>`
+    <div class="hero-proof-item">
+      <div class="hero-proof-num">${esc(String(i.n))}</div>
+      <div class="hero-proof-label">${esc(i.l)}</div>
+    </div>`).join('');
 }
 
-// ─── RENDER DEMANDS ───
-function renderDemands(demands, updated) {
+/* ── EDITOR'S PICK ── */
+function renderPick(articles){
+  const pick = articles.find(a=>a.is_editors_pick)||articles[0];
+  const el = document.getElementById('pick-content');
+  if(!pick){
+    el.innerHTML = `<p class="pick-overline">No articles yet</p><p class="pick-title" style="opacity:.4">Dispatches coming soon.</p>`;
+    return;
+  }
+  el.innerHTML = `
+    <p class="pick-overline">Latest · ${esc(pick.published_at)}</p>
+    <h2 class="pick-title">${esc(pick.title)}</h2>
+    ${pick.pull_quote?`<blockquote class="pick-pull">${esc(pick.pull_quote)}</blockquote>`:''}
+    <p class="pick-meta"><strong>${esc(pick.author)}</strong> · ${esc(pick.city)}</p>`;
+}
+
+/* ── DEMANDS ── */
+function renderDemands(demands, upd){
   document.getElementById('demands-updated').textContent =
-    `Last updated: ${updated || MOCK.demands_updated}. These change when the ground changes.`;
-  const c = document.getElementById('demands-container');
-  c.innerHTML = demands.map(d => `
-    <div class="demand-row">
-      <span class="demand-num">${d.number}</span>
-      <span class="demand-text">${d.text}</span>
-    </div>
-  `).join('');
-  observeAll(c.querySelectorAll('.demand-row'));
-}
-
-// ─── RENDER RECORDS ───
-function renderRecords(records) {
-  const c = document.getElementById('record-container');
-  c.innerHTML = records.map(r => `
-    <div class="record-row">
-      <p class="record-fact">${r.fact}</p>
-      <p class="record-source">${r.source}<br>${r.source_year}</p>
-    </div>
-  `).join('');
-  observeAll(c.querySelectorAll('.record-row'));
-}
-
-// ─── RENDER ARTICLES ───
-function renderArticles(articles) {
-  const pick = articles.find(a => a.is_editors_pick);
-  const rest = articles.filter(a => !a.is_editors_pick);
-
-  const pickC = document.getElementById('pick-container');
-  if (pick) {
-    pickC.innerHTML = `
-      <div class="pick-card reveal">
-        <h3 class="pick-title">${pick.title}</h3>
-        ${pick.pull_quote ? `<p class="pick-pull">${pick.pull_quote}</p>` : ''}
-        <p class="pick-meta"><b>${pick.author}</b> &nbsp;·&nbsp; ${pick.city} &nbsp;·&nbsp; ${pick.published_at}</p>
-      </div>`;
-    observeAll(pickC.querySelectorAll('.pick-card'));
+    `Last updated: ${upd}. These change when the ground changes.`;
+  const el = document.getElementById('demands-list');
+  if(!demands.length){
+    el.innerHTML=`<div class="demand-row"><span class="demand-n">—</span><p class="demand-txt" style="opacity:.4">No demands loaded.</p></div>`;
+    return;
   }
+  el.innerHTML = demands.map(d=>`
+    <div class="demand-row" role="listitem">
+      <span class="demand-n" aria-hidden="true">${esc(d.number)}</span>
+      <p class="demand-txt">${esc(d.text)}</p>
+    </div>`).join('');
+}
 
-  const artC = document.getElementById('articles-container');
-  artC.innerHTML = rest.map((a, i) => `
-    <div class="article-row">
-      <span class="article-num">0${i + 1}</span>
-      <span class="article-title">${a.title}</span>
-      <span class="article-byline"><b>${a.author}</b><br>${a.city} · ${a.published_at}</span>
+/* ── RECORDS ── */
+function renderRecords(records){
+  const el = document.getElementById('records-grid');
+  if(!records.length){
+    el.innerHTML=`<div class="record-card"><p class="record-fact" style="opacity:.4">No records yet.</p></div>`;
+    return;
+  }
+  el.innerHTML = records.map((r,i)=>`
+    <div class="record-card" role="listitem">
+      <p class="record-num">${String(i+1).padStart(2,'0')}</p>
+      <p class="record-fact">${esc(r.fact)}</p>
+      <p class="record-source"><strong>${esc(r.source)}</strong> · ${esc(r.source_year)}</p>
+    </div>`).join('');
+}
+
+/* ── HOT TAKES ── */
+function renderTakes(takes){
+  const el = document.getElementById('takes-grid');
+  if(!takes.length){
+    el.innerHTML=`<div class="take-card"><p class="take-text">No takes yet.</p></div>`;
+    return;
+  }
+  el.innerHTML = takes.map(t=>`
+    <div class="take-card">
+      <div class="take-mark" aria-hidden="true">"</div>
+      <p class="take-text">${esc(t.text)}</p>
+      <p class="take-by"><strong>${esc(t.author)}</strong> · ${esc(t.city)}</p>
+    </div>`).join('');
+}
+
+/* ── DISPATCHES ── */
+function renderDispatches(articles){
+  const el = document.getElementById('dispatches-main');
+  const pick = articles.find(a=>a.is_editors_pick)||articles[0];
+  const rest = articles.filter(a=>a!==pick).slice(0,6);
+
+  let html='';
+  if(pick){
+    html+=`
+    <div class="d-featured">
+      <span class="d-badge">Editor's Pick</span>
+      <h3 class="d-featured-title">${esc(pick.title)}</h3>
+      ${pick.pull_quote?`<p class="d-featured-pull">${esc(pick.pull_quote)}</p>`:''}
+      <p class="d-meta"><strong>${esc(pick.author)}</strong> · ${esc(pick.city)} · ${esc(pick.published_at)}</p>
+    </div>`;
+  }
+  if(rest.length){
+    html+=rest.map(a=>`
+    <div class="d-item" role="article">
+      <div>
+        <p class="d-item-title">${esc(a.title)}</p>
+        <p class="d-item-meta">${esc(a.author)} · ${esc(a.city)}</p>
+      </div>
+      <span class="d-item-date">${esc(a.published_at)}</span>
+    </div>`).join('');
+  }
+  if(!pick&&!rest.length){
+    html=`<p style="font-family:var(--f-body);font-style:italic;color:var(--ink-4);padding:2rem 0">No dispatches yet. Be the first to submit.</p>`;
+  }
+  el.innerHTML=html;
+}
+
+/* ── PETITION ── */
+function renderPetition(pet, count){
+  const pct = Math.min(100, Math.round((count/pet.target)*100));
+  const show = count >= SIG_THRESHOLD;
+
+  document.getElementById('petition-left').innerHTML=`
+    <p class="pet-label">Active Petition</p>
+    <h3 class="pet-title">${esc(pet.title)}</h3>
+    ${show?`
+    <div class="pet-count-wrap">
+      <span class="pet-count">${count.toLocaleString('en-IN')}</span>
+      <span class="pet-count-label">have signed</span>
     </div>
-  `).join('');
-  observeAll(artC.querySelectorAll('.article-row'), 80);
-}
-
-// ─── RENDER HOT TAKES ───
-function renderHotTakes(takes) {
-  const c = document.getElementById('hottakes-container');
-  c.innerHTML = takes.slice(0, 3).map(t => `
-    <div class="take-row">
-      <p class="take-text">"${t.text}"</p>
-      <p class="take-author"><b>${t.author}</b> &nbsp;·&nbsp; ${t.city}</p>
+    <p class="pet-count-goal">Goal: <strong>${pet.target.toLocaleString('en-IN')}</strong></p>`:`
+    <p class="pet-count-goal" style="margin-bottom:1rem;font-size:.85rem;color:rgba(246,241,232,.5)">Be among the first to sign. Goal: <strong>${pet.target.toLocaleString('en-IN')}</strong></p>`}
+    <div class="pet-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">
+      <div class="pet-bar-fill" style="width:${pct}%"></div>
     </div>
-  `).join('');
-  observeAll(c.querySelectorAll('.take-row'), 120);
+    <p class="pet-bar-pct">${pct}% of goal</p>`;
+
+  // update sticky bar
+  if(show){
+    const el = document.getElementById('alert-count');
+    el.textContent = count.toLocaleString('en-IN') + ' signed';
+    el.classList.add('visible');
+  }
 }
 
-// ─── RENDER PETITION ───
-let petitionId = null;
-let petitionTarget = 25000;
-function renderPetition({ petition, count }) {
-  petitionId = petition.id;
-  petitionTarget = petition.target;
-  document.getElementById('petition-title').textContent = `"${petition.title}"`;
-  document.getElementById('counter-goal').textContent = `Goal: ${petition.target.toLocaleString('en-IN')}`;
-
-  // animate counter
-  const el = document.getElementById('counter');
-  const fill = document.getElementById('progress-fill');
-  const pctTarget = Math.min(100, Math.round((count / petition.target) * 100));
-
-  const sect = document.getElementById('petition');
-  let fired = false;
-  const obs = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting && !fired) {
-      fired = true;
-      fill.style.width = pctTarget + '%';
-      let cur = 0;
-      const step = 16;
-      const inc = count / (1800 / step);
-      const t = setInterval(() => {
-        cur += inc;
-        if (cur >= count) { el.textContent = count.toLocaleString('en-IN'); clearInterval(t); return; }
-        el.textContent = Math.floor(cur).toLocaleString('en-IN');
-      }, step);
-    }
-  }, { threshold: 0.3 });
-  obs.observe(sect);
-}
-
-// ─── RENDER STATS ───
-function renderStats(stats) {
-  const c = document.getElementById('stats-container');
-  c.innerHTML = stats.map(s => `
+/* ── STATS ── */
+function renderStats(stats){
+  const el = document.getElementById('stats-grid');
+  if(!stats.length){el.innerHTML='';return;}
+  el.innerHTML = stats.map(s=>`
     <div class="stat-cell">
-      <span class="stat-num">${s.value}</span>
-      <span class="stat-label">${s.label}</span>
-    </div>
-  `).join('');
-  observeAll(c.querySelectorAll('.stat-cell'), 100);
+      <div class="stat-val">${esc(s.value)}</div>
+      <div class="stat-lbl">${esc(s.label)}</div>
+    </div>`).join('');
+
+  // also update hero proof with real stats
+  const proof = document.getElementById('hero-proof');
+  proof.innerHTML = stats.map(s=>`
+    <div class="hero-proof-item">
+      <div class="hero-proof-num">${esc(s.value)}</div>
+      <div class="hero-proof-label">${esc(s.label)}</div>
+    </div>`).join('');
 }
 
-// ─── INTERSECTION OBSERVER ───
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      const delay = parseInt(e.target.dataset.delay || 0);
-      setTimeout(() => e.target.classList.add('visible'), delay);
-      io.unobserve(e.target);
-    }
-  });
-}, { threshold: 0.12 });
-
-function observeAll(els, baseDelay = 0) {
-  Array.from(els).forEach((el, i) => {
-    el.dataset.delay = baseDelay * i;
-    io.observe(el);
-  });
-}
-
-// Observe static reveal elements
-document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-// ─── FORM: SIGN PETITION ───
-async function signPetition() {
-  const name  = document.getElementById('petName').value.trim();
-  const email = document.getElementById('petEmail').value.trim();
-  const msg   = document.getElementById('petMsg');
-  if (!name || !email) {
-    msg.textContent = 'Enter your name and email.';
-    msg.className = 'form-msg err';
+/* ── SIGN PETITION ── */
+async function submitSig(){
+  const name  = document.getElementById('sig-name').value.trim();
+  const email = document.getElementById('sig-email').value.trim();
+  const btn   = document.getElementById('btn-sign');
+  const txt   = document.getElementById('sign-txt');
+  if(!name||!email){toast('Enter your name and email.',true);return;}
+  if(!email.includes('@')){toast('Enter a valid email.',true);return;}
+  if(!PETITION_ID){toast('No active petition found.',true);return;}
+  btn.disabled=true; txt.textContent='Signing…';
+  const {error} = await sb.from('petition_sigs').insert({petition_id:PETITION_ID,name,email});
+  if(error){
+    toast(error.code==='23505'?'You\'ve already signed this petition.':'Something went wrong. Try again.',true);
+    btn.disabled=false; txt.textContent='Sign the Petition →';
     return;
   }
-  try {
-    await insertSignature(petitionId, name, email);
-    msg.textContent = 'Signed. Your name is on record.';
-    msg.className = 'form-msg ok';
-    document.getElementById('petName').value = '';
-    document.getElementById('petEmail').value = '';
-  } catch(e) {
-    if (e.message === 'already_signed') {
-      msg.textContent = 'This email has already signed.';
-    } else {
-      msg.textContent = 'Something went wrong. Try again.';
+  document.getElementById('sig-name').value='';
+  document.getElementById('sig-email').value='';
+  txt.textContent='Signed ✓';
+  toast('Your signature has been recorded. Thank you.');
+  // refresh count
+  const {data:cnt} = await sb.from('petition_counts')
+    .select('signature_count').eq('petition_id',PETITION_ID).single();
+  if(cnt){
+    const c=Number(cnt.signature_count);
+    const fill=document.querySelector('.pet-bar-fill');
+    const pctEl=document.querySelector('.pet-bar-pct');
+    const {data:p}=await sb.from('petitions').select('target').eq('id',PETITION_ID).single();
+    if(p&&fill){
+      const pct=Math.min(100,Math.round((c/p.target)*100));
+      fill.style.width=pct+'%';
+      if(pctEl)pctEl.textContent=pct+'% of goal';
     }
-    msg.className = 'form-msg err';
+    if(c>=SIG_THRESHOLD){
+      const al=document.getElementById('alert-count');
+      al.textContent=c.toLocaleString('en-IN')+' signed';
+      al.classList.add('visible');
+    }
   }
 }
 
-// ─── FORM: SUBMIT PIECE ───
-async function submitPiece() {
-  const name    = document.getElementById('subName').value.trim();
-  const email   = document.getElementById('subEmail').value.trim();
-  const content = document.getElementById('subContent').value.trim();
-  const msg     = document.getElementById('subMsg');
-  if (!name || !email || !content) {
-    msg.textContent = 'All fields are required.';
-    msg.className = 'form-msg err';
+/* ── MODAL ── */
+function openModal(){
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('modal-overlay').addEventListener('click',e=>{
+  if(e.target===e.currentTarget)closeModal();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+/* ── SUBMIT PIECE ── */
+async function submitPiece(){
+  const name    = document.getElementById('sub-name').value.trim();
+  const email   = document.getElementById('sub-email').value.trim();
+  const content = document.getElementById('sub-content').value.trim();
+  const err     = document.getElementById('sub-err');
+  const btn     = document.getElementById('btn-sub');
+  err.textContent='';
+  if(!name){err.textContent='Please enter your name.';return;}
+  if(!email||!email.includes('@')){err.textContent='Please enter a valid email.';return;}
+  if(!content||content.length<100){err.textContent='Your piece needs to be at least 100 characters.';return;}
+  btn.disabled=true; btn.textContent='Sending…';
+  const {error}=await sb.from('submissions').insert({name,email,content});
+  if(error){
+    err.textContent='Something went wrong. Try again or email us directly.';
+    btn.disabled=false; btn.textContent='Send It →';
     return;
   }
-  try {
-    await insertSubmission(name, email, content);
-    msg.textContent = 'Received. We\'ll read it.';
-    msg.className = 'form-msg ok';
-    document.getElementById('subName').value = '';
-    document.getElementById('subEmail').value = '';
-    document.getElementById('subContent').value = '';
-  } catch(e) {
-    msg.textContent = 'Something went wrong. Try again.';
-    msg.className = 'form-msg err';
-  }
+  document.getElementById('sub-name').value='';
+  document.getElementById('sub-email').value='';
+  document.getElementById('sub-content').value='';
+  closeModal();
+  toast('Received. We read every submission and respond within 7 days.');
 }
 
-// ─── FORM: JOIN ───
-async function joinMovement(btn) {
-  const name  = document.getElementById('joinName').value.trim();
-  const email = document.getElementById('joinEmail').value.trim();
-  const city  = document.getElementById('joinCity').value.trim();
-  if (!name || !email) return;
-  try {
-    await insertMember(name, email, city);
-    btn.textContent = 'NAME ADDED.';
-    btn.classList.add('done');
-    btn.disabled = true;
-    document.getElementById('joinName').value = '';
-    document.getElementById('joinEmail').value = '';
-    document.getElementById('joinCity').value = '';
-  } catch(e) {
-    btn.textContent = 'TRY AGAIN →';
-    setTimeout(() => { btn.textContent = 'I\'M IN →'; }, 2000);
+/* ── JOIN ── */
+async function submitJoin(){
+  const name  = document.getElementById('join-name').value.trim();
+  const email = document.getElementById('join-email').value.trim();
+  if(!name||!email){toast('Enter your name and email.',true);return;}
+  if(!email.includes('@')){toast('Enter a valid email address.',true);return;}
+  const {error}=await sb.from('members').insert({name,email});
+  if(error){
+    toast(error.code==='23505'?"You're already in. We haven't forgotten you.":'Something went wrong. Try again.',true);
+    return;
   }
+  document.getElementById('join-name').value='';
+  document.getElementById('join-email').value='';
+  toast("You're in. We'll be in touch when it matters.");
 }
 
-// ─── INIT: LOAD ALL CONTENT ───
-async function init() {
-  try {
-    const [demands, demandsUpdated, articles, hotTakes, petitionData, records, stats] = await Promise.all([
-      fetchDemands(),
-      fetchDemandsUpdated(),
-      fetchArticles(),
-      fetchHotTakes(),
-      fetchPetition(),
-      fetchRecords(),
-      fetchStats(),
-    ]);
-
-    buildTicker1(TICKER_1);
-    buildTicker2(TICKER_2);
-    renderDemands(demands, demandsUpdated);
-    renderRecords(records);
-    renderArticles(articles);
-    renderHotTakes(hotTakes);
-    renderPetition(petitionData);
-    renderStats(stats);
-
-    // re-observe newly rendered .reveal elements
-    document.querySelectorAll('.reveal:not(.visible)').forEach(el => io.observe(el));
-
-  } catch(err) {
-    console.error('YFI load error:', err);
-  }
-}
-
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', boot);
 </script>
 </body>
 </html>
