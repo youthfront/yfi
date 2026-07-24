@@ -1,0 +1,36 @@
+# ─────────────────────────────────────────────
+# Cloudflare Pages _headers
+# ─────────────────────────────────────────────
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  X-XSS-Protection: 1; mode=block
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+  Link: <https://fonts.googleapis.com>; rel=preconnect
+  Link: <https://fonts.gstatic.com>; rel=preconnect; crossorigin
+
+/article.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/dashboard.html
+  Cache-Control: no-store
+  X-Robots-Tag: noindex, nofollow
+
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+  Content-Type: image/svg+xml
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+  Content-Type: application/xml
+
+/robots.txt
+  Cache-Control: public, max-age=86400

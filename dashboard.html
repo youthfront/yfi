@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YFI Editorial — Dashboard</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="shortcut icon" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,700;1,9..144,900&family=Epilogue:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<style>
+/* ─────────────────────────────────────────────
+   TOKENS — Marigold & Charcoal
+───────────────────────────────────────────── */
+:root {
+  /* Surfaces */
+  --bg:        #F0EDE4;
+  --bg-2:      #E8E4DA;
+  --bg-3:      #DDD8CE;
+  --bg-4:      #CEC8BE;
+  --sidebar:   #1E1A16;
+  --sidebar-2: #282420;
+  --sidebar-3: #342E28;
+  --topbar:    #FFFFFF;
+
+  /* Text */
+  --ink:       #282420;
+  --ink-2:     #342E28;
+  --ink-3:     #504540;
+  --ink-4:     #7A6E64;
+  --ink-5:     #A89E94;
+  --s-text:    #F0EDE4;
+  --s-muted:   #6A5E50;
+  --s-faint:   #3A3028;
+
+  /* Accents */
+  --gold:      #E89C18;
+  --gold-2:    #C07C10;
+  --gold-bg:   #FAF0D8;
+  --gold-mid:  #F0C060;
+  --red:       #B82018;
+  --red-2:     #941810;
+  --red-bg:    #F8EAE8;
+  --red-mid:   #E8B8A8;
+  --teal:      #1A6358;
+  --teal-bg:   #E0F0EC;
+  --teal-mid:  #2A9080;
+  --rule:      rgba(40,36,32,0.1);
+  --rule-med:  rgba(40,36,32,0.16);
+
+  /* Type */
+  --f-disp: 'Fraunces', Georgia, serif;
+  --f-ui:   'Epilogue', system-ui, sans-serif;
+  --f-mono: 'DM Mono', 'Courier New', monospace;
+
+  /* Sidebar */
+  --sidebar-w: 228px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:var(--f-ui);font-size:14px;
+  line-height:1.5;-webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none;}
+button{cursor:pointer;font-family:inherit;border:none;background:none;}
+input,textarea,select{font-family:inherit;}
+
+/* ─────────────────────────────────────────────
+   AUTH SCREEN
+───────────────────────────────────────────── */
+#auth-screen{
+  position:fixed;inset:0;
+  background:var(--sidebar);
+  display:flex;align-items:center;justify-content:center;
+  z-index:800;
+}
+.auth-card{
+  width:100%;max-width:360px;
+  background:var(--sidebar-2);
+  border:1px solid var(--sidebar-3);
+}
+.auth-top{
+  padding:2rem 2rem 1.75rem;
+  border-bottom:1px solid var(--sidebar-3);
+}
+.auth-wordmark{
+  font-family:var(--f-ui);font-size:11px;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--s-muted);margin-bottom:1.25rem;
+}
+.auth-wordmark b{color:var(--gold);}
+.auth-title{
+  font-family:var(--f-disp);font-size:1.7rem;font-weight:900;font-style:italic;
+  color:var(--s-text);line-height:1.05;
+}
+.auth-title em{color:var(--gold);font-style:normal;}
+.auth-body{padding:1.75rem 2rem;}
+.auth-field{margin-bottom:1px;}
+.auth-field input{
+  width:100%;
+  background:var(--sidebar);
+  border:1px solid var(--sidebar-3);
+  border-bottom:none;
+  color:var(--s-text);
+  font-size:14px;font-weight:400;
+  padding:.8rem 1rem;outline:none;
+  transition:border-color .2s,background .2s;
+}
+.auth-field:last-of-type input{border-bottom:1px solid var(--sidebar-3);}
+.auth-field input:focus{border-color:var(--s-muted);background:rgba(0,0,0,.2);}
+.auth-field input::placeholder{color:var(--s-muted);}
+.auth-btn{
+  width:100%;background:var(--gold);color:var(--sidebar);
+  font-family:var(--f-ui);font-size:12px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:.9rem;border:none;cursor:pointer;
+  margin-top:1.5rem;transition:background .2s;
+}
+.auth-btn:hover{background:var(--gold-2);color:var(--s-text);}
+.auth-btn:disabled{background:var(--s-muted);cursor:default;}
+.auth-err{
+  font-size:12px;color:var(--red);
+  margin-top:.75rem;min-height:1.1em;
+}
+.auth-foot{
+  padding:.9rem 2rem;border-top:1px solid var(--sidebar-3);
+}
+.auth-foot p{font-size:11px;color:var(--s-muted);letter-spacing:.04em;}
+
+/* ─────────────────────────────────────────────
+   APP SHELL
+───────────────────────────────────────────── */
+#app{display:none;height:100vh;flex-direction:column;}
+#app.active{display:flex;}
+
+/* TOPBAR */
+.topbar{
+  height:52px;
+  background:var(--topbar);
+  border-bottom:1px solid var(--rule-med);
+  display:flex;align-items:center;
+  justify-content:space-between;
+  padding:0 1.75rem 0 0;
+  flex-shrink:0;z-index:100;
+  position:relative;
+}
+.topbar-left{
+  display:flex;align-items:center;height:100%;
+}
+.topbar-brand{
+  width:var(--sidebar-w);
+  height:100%;
+  background:var(--sidebar);
+  display:flex;align-items:center;
+  padding:0 1.5rem;
+  flex-shrink:0;
+  border-right:none;
+}
+.topbar-brand-text{
+  font-family:var(--f-ui);font-size:12px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--s-text);
+}
+.topbar-brand-text b{color:var(--gold);}
+.topbar-breadcrumb{
+  display:flex;align-items:center;gap:.5rem;
+  padding:0 1.5rem;
+}
+.topbar-breadcrumb span{
+  font-size:13px;font-weight:500;color:var(--ink-4);
+  letter-spacing:.01em;
+}
+.topbar-breadcrumb .sep{color:var(--ink-5);}
+.topbar-breadcrumb .current{color:var(--ink);font-weight:600;}
+.topbar-right{
+  display:flex;align-items:center;gap:1.25rem;
+}
+.topbar-user{
+  font-size:12px;color:var(--ink-4);
+  display:flex;align-items:center;gap:.4rem;
+}
+.topbar-user b{color:var(--ink-2);font-weight:600;}
+.topbar-pill{
+  display:inline-block;width:7px;height:7px;
+  background:var(--teal);border-radius:50%;flex-shrink:0;
+}
+.topbar-link{
+  font-size:12px;font-weight:500;
+  color:var(--ink-4);letter-spacing:.02em;
+  border:1px solid var(--rule-med);
+  padding:.35rem .85rem;
+  transition:all .2s;
+}
+.topbar-link:hover{color:var(--ink);border-color:var(--rule-med);}
+.topbar-signout{
+  font-size:12px;font-weight:500;
+  color:var(--ink-4);transition:color .2s;
+}
+.topbar-signout:hover{color:var(--red);}
+
+/* BODY */
+.app-body{display:flex;flex:1;overflow:hidden;}
+
+/* ─────────────────────────────────────────────
+   SIDEBAR
+───────────────────────────────────────────── */
+.sidebar{
+  width:var(--sidebar-w);
+  background:var(--sidebar);
+  display:flex;flex-direction:column;
+  flex-shrink:0;overflow-y:auto;
+}
+.sidebar::-webkit-scrollbar{width:0;}
+
+.sidebar-section{
+  padding:.75rem 0;
+  border-bottom:1px solid var(--s-faint);
+}
+.sidebar-section:last-child{border-bottom:none;}
+.sidebar-group-label{
+  font-size:10px;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:var(--s-muted);
+  padding:.35rem 1.25rem .2rem;
+}
+.nav-item{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.6rem 1.25rem;
+  font-size:13px;font-weight:500;
+  color:rgba(240,235,224,.45);
+  cursor:pointer;border:none;background:none;
+  width:100%;text-align:left;
+  transition:color .15s,background .15s;
+  border-left:2px solid transparent;
+  letter-spacing:.01em;
+}
+.nav-item:hover{
+  color:rgba(240,235,224,.8);
+  background:rgba(255,255,255,.04);
+}
+.nav-item.active{
+  color:var(--s-text);
+  background:rgba(232,156,24,.08);
+  border-left-color:var(--gold);
+}
+.nav-icon{
+  width:16px;height:16px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;opacity:.6;
+}
+.nav-item.active .nav-icon{opacity:1;}
+.nav-item:hover .nav-icon{opacity:.8;}
+.nav-badge{
+  margin-left:auto;
+  background:var(--red);color:#fff;
+  font-size:10px;font-weight:700;
+  padding:.1rem .45rem;letter-spacing:.04em;
+  border-radius:2px;
+}
+.nav-badge.gold{background:var(--gold-mid);color:var(--sidebar);}
+.nav-badge.teal{background:var(--teal-mid);color:#fff;}
+
+/* ─────────────────────────────────────────────
+   MAIN AREA
+───────────────────────────────────────────── */
+.main{flex:1;overflow-y:auto;background:var(--bg);}
+.main::-webkit-scrollbar{width:5px;}
+.main::-webkit-scrollbar-track{background:transparent;}
+.main::-webkit-scrollbar-thumb{background:var(--bg-3);border-radius:3px;}
+
+.panel{display:none;padding:2.25rem 2.5rem;}
+.panel.active{display:block;}
+
+/* ─────────────────────────────────────────────
+   PANEL HEADER
+───────────────────────────────────────────── */
+.panel-hd{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:1rem;flex-wrap:wrap;
+  padding-bottom:1.5rem;
+  border-bottom:1px solid var(--rule-med);
+  margin-bottom:2rem;
+}
+.panel-hd-left{}
+.panel-title{
+  font-family:var(--f-disp);font-size:1.75rem;font-weight:900;font-style:italic;
+  color:var(--ink);line-height:1;letter-spacing:-.02em;
+}
+.panel-sub{
+  font-size:12px;font-weight:400;color:var(--ink-4);
+  margin-top:.35rem;letter-spacing:.01em;
+}
+
+/* ─────────────────────────────────────────────
+   BUTTONS
+───────────────────────────────────────────── */
+.btn{
+  font-family:var(--f-ui);font-size:12px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:.6rem 1.25rem;border:none;cursor:pointer;
+  transition:all .2s;display:inline-flex;align-items:center;gap:.4rem;
+}
+.btn-primary{background:var(--gold);color:var(--sidebar);}
+.btn-primary:hover{background:var(--gold-2);color:var(--s-text);}
+.btn-ghost{
+  background:transparent;color:var(--ink-3);
+  border:1px solid var(--rule-med);
+}
+.btn-ghost:hover{color:var(--ink);border-color:var(--rule-med);background:var(--bg-2);}
+.btn-teal{background:var(--teal);color:#fff;}
+.btn-teal:hover{background:var(--teal-mid);}
+.btn-danger{
+  background:transparent;color:var(--red);
+  border:1px solid var(--red-mid);
+}
+.btn-danger:hover{background:var(--red-bg);}
+.btn-gold{background:var(--gold);color:#fff;}
+.btn-gold:hover{opacity:.85;}
+.btn-sm{padding:.4rem .8rem;font-size:11px;}
+
+/* ─────────────────────────────────────────────
+   OVERVIEW STAT CARDS
+───────────────────────────────────────────── */
+.stat-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:var(--rule-med);
+  border:1px solid var(--rule-med);
+  margin-bottom:2rem;
+}
+.stat-card{
+  background:var(--topbar);
+  padding:1.5rem;
+  display:flex;flex-direction:column;gap:.35rem;
+}
+.stat-card-val{
+  font-family:var(--f-disp);font-size:2.2rem;font-weight:900;font-style:italic;
+  line-height:1;letter-spacing:-.02em;color:var(--ink);
+}
+.stat-card-val.red{color:var(--red);}
+.stat-card-val.gold{color:var(--gold-2);}
+.stat-card-val.teal{color:var(--teal);}
+.stat-card-label{
+  font-size:11px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-4);
+}
+.stat-card-note{
+  font-size:11px;color:var(--ink-5);margin-top:.1rem;
+}
+
+/* ─────────────────────────────────────────────
+   OVERVIEW RECENT CARDS
+───────────────────────────────────────────── */
+.recent-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+.recent-card{
+  background:var(--topbar);
+  border:1px solid var(--rule-med);
+}
+.recent-card-hd{
+  padding:.85rem 1.25rem;
+  border-bottom:1px solid var(--rule);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.recent-card-title{
+  font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-4);
+}
+.recent-item{
+  padding:.85rem 1.25rem;
+  border-bottom:1px solid var(--rule);
+  cursor:pointer;transition:background .15s;
+}
+.recent-item:last-child{border-bottom:none;}
+.recent-item:hover{background:var(--bg);}
+.recent-item-title{
+  font-size:13px;font-weight:600;color:var(--ink);
+  margin-bottom:.2rem;line-height:1.3;
+}
+.recent-item-meta{
+  font-size:11px;color:var(--ink-4);
+  display:flex;align-items:center;gap:.5rem;
+}
+
+/* ─────────────────────────────────────────────
+   TABLES
+───────────────────────────────────────────── */
+.tbl{
+  width:100%;border-collapse:collapse;
+  border:1px solid var(--rule-med);
+  background:var(--topbar);
+}
+.tbl th{
+  font-size:11px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-4);
+  padding:.75rem 1.1rem;text-align:left;
+  border-bottom:1px solid var(--rule-med);
+  background:var(--bg-2);white-space:nowrap;
+}
+.tbl td{
+  padding:.9rem 1.1rem;
+  border-bottom:1px solid var(--rule);
+  vertical-align:middle;font-size:13px;
+  color:var(--ink-2);
+}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--bg);}
+.tbl .td-title{
+  font-family:var(--f-disp);font-size:14px;font-weight:700;
+  color:var(--ink);max-width:380px;line-height:1.3;
+}
+.tbl .td-meta{
+  font-size:12px;color:var(--ink-4);
+  font-weight:500;white-space:nowrap;
+}
+.tbl .td-actions{
+  display:flex;gap:.5rem;align-items:center;white-space:nowrap;
+}
+
+/* ─────────────────────────────────────────────
+   PILLS / STATUS
+───────────────────────────────────────────── */
+.pill{
+  display:inline-block;
+  font-size:10px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:.2rem .55rem;border-radius:2px;
+}
+.pill-pending  {background:var(--gold-bg);color:var(--gold);}
+.pill-published{background:var(--teal-bg);color:var(--teal);}
+.pill-rejected {background:var(--red-bg);color:var(--red);}
+.pill-active   {background:var(--teal-bg);color:var(--teal);}
+.pill-hidden   {background:var(--bg-3);color:var(--ink-4);}
+.pill-pick     {background:var(--red);color:#fff;}
+
+/* ─────────────────────────────────────────────
+   FORM ELEMENTS
+───────────────────────────────────────────── */
+.fg{margin-bottom:1.1rem;}
+.fl{
+  display:block;font-size:11px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-4);margin-bottom:.4rem;
+}
+.fi,.fta,.fsel{
+  width:100%;
+  background:var(--topbar);
+  border:1px solid var(--rule-med);
+  color:var(--ink);font-size:14px;font-weight:400;
+  padding:.65rem .9rem;outline:none;
+  transition:border-color .2s,background .2s;
+  -webkit-appearance:none;border-radius:0;
+}
+.fi:focus,.fta:focus,.fsel:focus{
+  border-color:var(--ink-3);background:#fff;
+}
+.fi::placeholder,.fta::placeholder{color:var(--ink-5);}
+.fta{resize:vertical;min-height:110px;line-height:1.65;}
+.fsel{cursor:pointer;}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;}
+.f3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.85rem;}
+
+/* ─────────────────────────────────────────────
+   DEMANDS EDITOR
+───────────────────────────────────────────── */
+.demand-edit-row{
+  display:grid;grid-template-columns:52px 1fr auto;
+  align-items:center;gap:1rem;
+  padding:1rem 0;border-bottom:1px solid var(--rule);
+}
+.demand-edit-num{
+  font-family:var(--f-disp);font-size:1.6rem;font-weight:900;
+  color:var(--bg-4);line-height:1;text-align:center;
+}
+.demand-edit-input{
+  background:var(--topbar);border:1px solid var(--rule-med);
+  color:var(--ink);font-family:var(--f-disp);font-size:15px;font-weight:700;
+  padding:.65rem 1rem;outline:none;width:100%;
+  transition:border-color .2s;
+}
+.demand-edit-input:focus{border-color:var(--ink-3);}
+
+/* ─────────────────────────────────────────────
+   STATS EDITOR
+───────────────────────────────────────────── */
+.stats-edit-grid{
+  border:1px solid var(--rule-med);
+  background:var(--topbar);
+  max-width:560px;
+}
+.stats-edit-row{
+  display:grid;grid-template-columns:160px 1fr;
+  border-bottom:1px solid var(--rule);
+}
+.stats-edit-row:last-child{border-bottom:none;}
+.stats-edit-cell{
+  padding:.85rem 1rem;
+  border-right:1px solid var(--rule);
+}
+.stats-edit-cell:last-child{border-right:none;}
+
+/* ─────────────────────────────────────────────
+   PETITION VIEW
+───────────────────────────────────────────── */
+.pet-view{
+  background:var(--topbar);border:1px solid var(--rule-med);
+  padding:2rem;max-width:640px;margin-bottom:1.5rem;
+}
+.pet-view-title{
+  font-family:var(--f-disp);font-size:1.35rem;font-weight:900;
+  color:var(--ink);line-height:1.25;margin-bottom:2rem;
+}
+.pet-stats-row{
+  display:flex;gap:3rem;align-items:flex-end;margin-bottom:1.5rem;
+}
+.pet-stat-val{
+  font-family:var(--f-disp);font-size:3rem;font-weight:900;
+  line-height:1;letter-spacing:-.02em;
+}
+.pet-stat-val.red{color:var(--red);}
+.pet-stat-val.gold{color:var(--gold);}
+.pet-stat-val.teal{color:var(--teal);}
+.pet-stat-lbl{
+  font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-4);margin-top:.3rem;
+}
+.pet-bar{
+  height:3px;background:var(--bg-3);margin-bottom:.5rem;
+}
+.pet-bar-fill{height:100%;background:var(--red);transition:width 1s ease;}
+.pet-pct{font-size:11px;color:var(--ink-5);}
+
+/* ─────────────────────────────────────────────
+   SUBMISSION CONTENT
+───────────────────────────────────────────── */
+.sub-content{
+  font-size:14px;line-height:1.85;color:var(--ink-2);
+  white-space:pre-wrap;
+  border-left:2px solid var(--rule-med);
+  padding-left:1.25rem;
+  margin:1.25rem 0;
+  max-height:240px;overflow-y:auto;
+}
+.sub-meta-block{
+  background:var(--bg-2);
+  border:1px solid var(--rule);
+  padding:1rem 1.25rem;
+  margin-bottom:1.25rem;
+  display:flex;flex-wrap:wrap;gap:.75rem 2rem;
+}
+.sub-meta-item{font-size:12px;color:var(--ink-3);}
+.sub-meta-item strong{color:var(--ink);font-weight:600;}
+.sub-divider-label{
+  font-size:11px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-4);
+  margin:.75rem 0 1rem;
+  display:flex;align-items:center;gap:.75rem;
+}
+.sub-divider-label::after{
+  content:'';flex:1;height:1px;background:var(--rule-med);
+}
+
+/* ─────────────────────────────────────────────
+   EMPTY STATE
+───────────────────────────────────────────── */
+.empty{
+  padding:3.5rem 2rem;text-align:center;
+  border:1px solid var(--rule);
+  background:var(--topbar);
+}
+.empty-icon{font-size:1.75rem;margin-bottom:.75rem;opacity:.2;}
+.empty-text{
+  font-size:12px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-4);
+}
+
+/* ─────────────────────────────────────────────
+   SECTION LABEL
+───────────────────────────────────────────── */
+.section-lbl{
+  font-size:11px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-4);
+  margin-bottom:1rem;
+  display:flex;align-items:center;gap:.6rem;
+}
+.section-lbl::after{
+  content:'';flex:1;height:1px;background:var(--rule-med);
+}
+
+/* ─────────────────────────────────────────────
+   MODAL
+───────────────────────────────────────────── */
+.overlay{
+  position:fixed;inset:0;
+  background:rgba(24,18,16,.6);
+  backdrop-filter:blur(3px);
+  z-index:500;display:none;
+  align-items:center;justify-content:center;
+  padding:1rem;
+}
+.overlay.open{display:flex;}
+.modal{
+  background:var(--topbar);
+  border:1px solid var(--rule-med);
+  width:100%;max-width:600px;
+  max-height:88vh;
+  display:flex;flex-direction:column;
+  box-shadow:0 20px 60px rgba(24,18,16,.15);
+}
+.modal-lg{max-width:760px;}
+.modal-top{
+  padding:1.4rem 1.75rem;
+  border-bottom:1px solid var(--rule-med);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.modal-title{
+  font-family:var(--f-disp);font-size:1.25rem;font-weight:900;font-style:italic;
+  color:var(--ink);line-height:1.1;
+}
+.modal-x{
+  font-size:1.1rem;color:var(--ink-4);padding:.2rem;transition:color .2s;
+}
+.modal-x:hover{color:var(--ink);}
+.modal-body{padding:1.75rem;overflow-y:auto;flex:1;}
+.modal-foot{
+  padding:1.1rem 1.75rem;border-top:1px solid var(--rule-med);
+  display:flex;gap:.75rem;justify-content:flex-end;flex-shrink:0;
+}
+
+/* ─────────────────────────────────────────────
+   TOAST
+───────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:1.75rem;right:1.75rem;
+  background:var(--ink);color:var(--s-text);
+  border-left:3px solid var(--gold);
+  padding:.85rem 1.3rem;
+  font-size:13px;font-weight:500;
+  z-index:900;max-width:300px;line-height:1.4;
+  transform:translateY(16px);opacity:0;
+  transition:transform .25s ease,opacity .25s ease;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.err{border-left-color:var(--red);}
+</style>
+</head>
+<body>
+
+<!-- ── SUPABASE + STATE ──────────────────────────────────────── -->
+<script>
+const SUPABASE_URL      = 'https://anzeuwhetgqvavbjpuxd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuemV1d2hldGdxdmF2YmpwdXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NjM5MjgsImV4cCI6MjA5NTQzOTkyOH0.46MCQ8h2D-poRKlx_G5NJlfOqzB7I4IoPZC2Q684mK0';
+
+const ALLOWED_EDITORS = ['youthfront.in@gmail.com'];
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth:{ persistSession:true, autoRefreshToken:true }
+});
+
+let STATE = {
+  user:null, session:null, activePanel:'overview',
+  demands:[], demands_updated:'January 2025',
+  submissions:[], articles:[], hot_takes:[],
+  petition:null, petition_count:0,
+  records:[], stats:[], members:[],
+  current_issue: null,
+};
+
+/* ── DB LAYER ── */
+async function loadAllData() {
+  const [
+    {data:demands},{data:cfg},{data:submissions},
+    {data:articles},{data:takes},{data:petitions},
+    {data:records},{data:stats},{data:members},
+    {data:currentIssue}
+  ] = await Promise.all([
+    sb.from('demands').select('*').order('number'),
+    sb.from('site_config').select('value').eq('key','demands_updated').single(),
+    sb.from('submissions').select('*').order('submitted_at',{ascending:false}),
+    sb.from('articles').select('*').order('created_at',{ascending:false}),
+    sb.from('hot_takes').select('*').order('created_at',{ascending:false}),
+    sb.from('petitions').select('*').order('id'),
+    sb.from('records').select('*').order('id'),
+    sb.from('stats').select('*').order('display_order'),
+    sb.from('members').select('*').order('joined_at',{ascending:false}),
+    sb.from('current_issue').select('*').eq('active',true).single(),
+  ]);
+  STATE.demands         = demands   ||[];
+  STATE.demands_updated = cfg?.value||'January 2025';
+  STATE.submissions     = submissions||[];
+  STATE.articles        = articles  ||[];
+  STATE.hot_takes       = takes     ||[];
+  STATE.petition        = petitions?.[0]||null;
+  STATE.records         = records   ||[];
+  STATE.stats           = stats     ||[];
+  STATE.members         = members   ||[];
+  STATE.current_issue   = currentIssue||null;
+  if(STATE.petition){
+    const {data:cnt}=await sb.from('petition_counts')
+      .select('signature_count').eq('petition_id',STATE.petition.id).single();
+    STATE.petition_count = cnt ? Number(cnt.signature_count) : 0;
+  }
+}
+
+async function dbSaveDemands(demands,upd){
+  await sb.from('demands').upsert(demands.map(d=>({id:d.id||undefined,number:d.number,text:d.text,active:d.active})));
+  await sb.from('site_config').upsert({key:'demands_updated',value:upd});
+}
+async function dbDeleteDemand(id){ await sb.from('demands').delete().eq('id',id); }
+
+async function dbInsertArticle(art){
+  if(art.is_editors_pick) await sb.from('articles').update({is_editors_pick:false}).neq('id',0);
+  const {data,error}=await sb.from('articles').insert(art).select().single();
+  if(error) throw error; return data;
+}
+async function dbUpdateArticle(id,art){
+  if(art.is_editors_pick) await sb.from('articles').update({is_editors_pick:false}).neq('id',id);
+  await sb.from('articles').update(art).eq('id',id);
+}
+async function dbDeleteArticle(id){ await sb.from('articles').delete().eq('id',id); }
+async function dbSetEditorsPick(id){
+  await sb.from('articles').update({is_editors_pick:false}).neq('id',0);
+  await sb.from('articles').update({is_editors_pick:true}).eq('id',id);
+}
+
+async function dbInsertTake(t){ const {data,error}=await sb.from('hot_takes').insert(t).select().single(); if(error) throw error; return data; }
+async function dbToggleTake(id,pub){ await sb.from('hot_takes').update({published:pub}).eq('id',id); }
+async function dbDeleteTake(id){ await sb.from('hot_takes').delete().eq('id',id); }
+
+async function dbInsertRecord(r){ const {data,error}=await sb.from('records').insert(r).select().single(); if(error) throw error; return data; }
+async function dbToggleRecord(id,active){ await sb.from('records').update({active}).eq('id',id); }
+async function dbDeleteRecord(id){ await sb.from('records').delete().eq('id',id); }
+
+async function dbUpdatePetition(id,title,target){ await sb.from('petitions').update({title,target}).eq('id',id); }
+async function dbSaveStats(stats){ await sb.from('stats').upsert(stats.map(s=>({id:s.id,label:s.label,value:s.value,display_order:s.display_order}))); }
+async function dbDeleteSubmission(id){ await sb.from('submissions').delete().eq('id',id); }
+async function dbUpdateSubmissionStatus(id,status){ await sb.from('submissions').update({status}).eq('id',id); }
+</script>
+
+<!-- ── AUTH SCREEN ───────────────────────────────────────────── -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-top">
+      <p class="auth-wordmark">Youth<b>Front</b> India</p>
+      <h1 class="auth-title">Editorial<br><em>Access.</em></h1>
+    </div>
+    <div class="auth-body">
+      <div class="auth-field">
+        <input type="email" id="auth-email" placeholder="Email address" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <input type="password" id="auth-pass" placeholder="Password" autocomplete="current-password">
+      </div>
+      <button class="auth-btn" id="auth-btn" onclick="doLogin()">
+        <span id="auth-btn-text">Sign In →</span>
+      </button>
+      <p class="auth-err" id="auth-err"></p>
+    </div>
+    <div class="auth-foot">
+      <p>Restricted editorial access · YouthFront India</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP ───────────────────────────────────────────────────── -->
+<div id="app">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-brand">
+        <span class="topbar-brand-text">Youth<b>Front</b> India</span>
+      </div>
+      <div class="topbar-breadcrumb">
+        <span>Editorial</span>
+        <span class="sep">/</span>
+        <span class="current" id="breadcrumb-current">Dashboard</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-user">
+        <span class="topbar-pill"></span>
+        Signed in as <b id="topbar-email">—</b>
+      </span>
+      <a href="index.html" target="_blank" class="topbar-link">View Site →</a>
+      <button class="topbar-signout" onclick="doSignOut()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar" aria-label="Dashboard navigation">
+      <div class="sidebar-section">
+        <button class="nav-item active" onclick="switchPanel('overview',this)" data-label="Dashboard">
+          <span class="nav-icon">◈</span> Dashboard
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-group-label">Content</p>
+        <button class="nav-item" onclick="switchPanel('submissions',this)" data-label="Submissions">
+          <span class="nav-icon">◎</span> Submissions
+          <span class="nav-badge" id="badge-submissions" style="display:none">0</span>
+        </button>
+        <button class="nav-item" onclick="switchPanel('articles',this)" data-label="Articles">
+          <span class="nav-icon">▤</span> Articles
+        </button>
+        <button class="nav-item" onclick="switchPanel('hottakes',this)" data-label="Hot Takes">
+          <span class="nav-icon">◉</span> Hot Takes
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-group-label">Site</p>
+        <button class="nav-item" onclick="switchPanel('demands',this)" data-label="Demands">
+          <span class="nav-icon">◆</span> Demands
+        </button>
+        <button class="nav-item" onclick="switchPanel('records',this)" data-label="On The Record">
+          <span class="nav-icon">◧</span> On The Record
+        </button>
+        <button class="nav-item" onclick="switchPanel('petition',this)" data-label="Petition">
+          <span class="nav-icon">◐</span> Petition
+        </button>
+        <button class="nav-item" onclick="switchPanel('stats',this)" data-label="Stats">
+          <span class="nav-icon">◳</span> Stats
+        </button>
+        <button class="nav-item" onclick="switchPanel('currentissue',this)" data-label="Current Issue">
+          <span class="nav-icon">◎</span> Current Issue
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-group-label">Community</p>
+        <button class="nav-item" onclick="switchPanel('members',this)" data-label="Members">
+          <span class="nav-icon">◑</span> Members
+          <span class="nav-badge teal" id="badge-members">0</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- MAIN PANELS -->
+    <main class="main">
+
+      <!-- OVERVIEW -->
+      <div class="panel active" id="panel-overview">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">Dashboard</h2>
+            <p class="panel-sub">Site overview — all live data from Supabase</p>
+          </div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-card">
+            <span class="stat-card-val gold" id="ov-pending">—</span>
+            <span class="stat-card-label">Pending Submissions</span>
+            <span class="stat-card-note">Need review</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card-val" id="ov-articles">—</span>
+            <span class="stat-card-label">Published Articles</span>
+            <span class="stat-card-note">Live on site</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card-val red" id="ov-sigs">—</span>
+            <span class="stat-card-label">Petition Signatures</span>
+            <span class="stat-card-note">Active petition</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card-val teal" id="ov-members">—</span>
+            <span class="stat-card-label">Members Joined</span>
+            <span class="stat-card-note">All time</span>
+          </div>
+        </div>
+
+        <div class="recent-grid">
+          <div class="recent-card">
+            <div class="recent-card-hd">
+              <span class="recent-card-title">Pending Submissions</span>
+              <button class="btn btn-ghost btn-sm" onclick="switchPanel('submissions',null)">View All →</button>
+            </div>
+            <div id="ov-submissions-list"></div>
+          </div>
+          <div class="recent-card">
+            <div class="recent-card-hd">
+              <span class="recent-card-title">Recent Members</span>
+              <button class="btn btn-ghost btn-sm" onclick="switchPanel('members',null)">View All →</button>
+            </div>
+            <div id="ov-members-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUBMISSIONS -->
+      <div class="panel" id="panel-submissions">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">Submissions</h2>
+            <p class="panel-sub">Review incoming pieces — publish directly or reject</p>
+          </div>
+        </div>
+        <div id="submissions-list"></div>
+      </div>
+
+      <!-- ARTICLES -->
+      <div class="panel" id="panel-articles">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">Articles</h2>
+            <p class="panel-sub">Manage published pieces and Editor's Pick</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-article')">+ New Article</button>
+        </div>
+        <table class="tbl" id="articles-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Author · City</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="articles-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- HOT TAKES -->
+      <div class="panel" id="panel-hottakes">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">Hot Takes</h2>
+            <p class="panel-sub">Up to 3 published at once — shown on site</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-take')">+ New Take</button>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr><th>Take</th><th>Author · City</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="takes-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- DEMANDS -->
+      <div class="panel" id="panel-demands">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">Demands</h2>
+            <p class="panel-sub">Edit live — changes reflect immediately on the main site</p>
+          </div>
+          <button class="btn btn-primary" onclick="saveDemands()">Save Changes</button>
+        </div>
+        <div id="demands-editor"></div>
+        <div style="margin-top:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+          <label class="fl" style="margin:0;white-space:nowrap">"Last updated" label:</label>
+          <input type="text" class="fi" id="demands-updated-input" style="max-width:220px" value="January 2025">
+          <span style="font-size:12px;color:var(--ink-4)">Shown as "Last updated: [value]. These change when the ground changes."</span>
+        </div>
+      </div>
+
+      <!-- ON THE RECORD -->
+      <div class="panel" id="panel-records">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">On The Record</h2>
+            <p class="panel-sub">Sourced facts shown on site — keep them verified</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('modal-record')">+ Add Fact</button>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr><th>Fact</th><th>Source · Year</th><th>Active</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="records-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- PETITION -->
+      <div class="panel" id="panel-petition">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">Petition</h2>
+            <p class="panel-sub">One active petition shown on site at a time</p>
+          </div>
+          <button class="btn btn-primary" onclick="openPetitionEdit()">Edit Petition</button>
+        </div>
+        <div id="petition-view"></div>
+      </div>
+
+      <!-- STATS -->
+      <div class="panel" id="panel-stats">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">Stats</h2>
+            <p class="panel-sub">Four figures shown in "By The Numbers" — update freely</p>
+          </div>
+          <button class="btn btn-primary" onclick="saveStats()">Save Changes</button>
+        </div>
+        <div id="stats-editor"></div>
+      </div>
+
+      <!-- MEMBERS -->
+      <div class="panel" id="panel-members">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">Members</h2>
+            <p class="panel-sub" id="members-count-label">— members have joined</p>
+          </div>
+          <button class="btn btn-ghost" onclick="exportMembers()">Export CSV</button>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>City</th><th>Joined</th></tr>
+          </thead>
+          <tbody id="members-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- CURRENT ISSUE -->
+      <div class="panel" id="panel-currentissue">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">Current Issue</h2>
+            <p class="panel-sub">What YouthFront India is vocal about right now — shown prominently on the landing page</p>
+          </div>
+          <button class="btn btn-primary" onclick="saveCurrentIssue()">Save Changes</button>
+        </div>
+        <div style="max-width:640px">
+          <div class="fg">
+            <label class="fl">Headline *</label>
+            <textarea class="fta" id="ci-headline" style="min-height:70px;font-size:1rem" placeholder="Over 1.3 crore youth enter the workforce every year. Formal jobs created: under 30 lakh."></textarea>
+            <p style="font-size:11px;color:var(--ink-5);margin-top:.35rem">This is the confrontational statement shown large on the landing page. Make it specific. Make it land.</p>
+          </div>
+          <div class="fg">
+            <label class="fl">Subtext (optional)</label>
+            <textarea class="fta" id="ci-subtext" style="min-height:60px" placeholder="1–2 sentences of context. What does this mean. Who decided it."></textarea>
+          </div>
+          <div class="f2">
+            <div class="fg">
+              <label class="fl">CTA Label</label>
+              <input type="text" class="fi" id="ci-cta-label" placeholder="See the Demands →">
+            </div>
+            <div class="fg">
+              <label class="fl">CTA URL</label>
+              <input type="text" class="fi" id="ci-cta-url" placeholder="#demands or https://...">
+            </div>
+          </div>
+          <div style="background:var(--bg-2);border:1px solid var(--rule-med);padding:1rem 1.25rem;margin-top:.5rem">
+            <p style="font-size:12px;color:var(--ink-4);line-height:1.6">
+              <strong style="color:var(--ink-2)">Note:</strong> Only one active issue is shown at a time. Saving replaces the current one. This section is issue-fluid by design — update it whenever the political moment shifts.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ── MODALS ────────────────────────────────────────────────── -->
+
+<!-- Article -->
+<div class="overlay" id="modal-article">
+  <div class="modal modal-lg">
+    <div class="modal-top">
+      <h3 class="modal-title" id="modal-article-title">New Article</h3>
+      <button class="modal-x" onclick="closeModal('modal-article')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="art-id">
+      <div class="fg">
+        <label class="fl">Title *</label>
+        <input type="text" class="fi" id="art-title" placeholder="Article headline">
+      </div>
+      <div class="f2">
+        <div class="fg">
+          <label class="fl">Author *</label>
+          <input type="text" class="fi" id="art-author" placeholder="Full name">
+        </div>
+        <div class="fg">
+          <label class="fl">City *</label>
+          <input type="text" class="fi" id="art-city" placeholder="City">
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Pull Quote (optional)</label>
+        <input type="text" class="fi" id="art-pull" placeholder="One line that earns its place">
+      </div>
+      <div class="fg">
+        <label class="fl">Body (Markdown supported)</label>
+        <textarea class="fta" id="art-body" style="min-height:220px;font-family:var(--f-mono);font-size:13px;line-height:1.7" placeholder="Paste or write the full article here.&#10;&#10;Supports: **bold**, *italic*, ## Heading, > blockquote, - list item, [link](url)&#10;&#10;Leave blank if the article links to an external URL."></textarea>
+      </div>
+      <div class="f3">
+        <div class="fg">
+          <label class="fl">Published Date</label>
+          <input type="text" class="fi" id="art-date" placeholder="Jan 2025">
+        </div>
+        <div class="fg">
+          <label class="fl">Reading Time (mins)</label>
+          <input type="number" class="fi" id="art-rt" placeholder="5" min="1" max="60">
+        </div>
+        <div class="fg">
+          <label class="fl">Editor's Pick?</label>
+          <select class="fsel" id="art-pick">
+            <option value="false">No</option>
+            <option value="true">Yes — feature this piece</option>
+          </select>
+        </div>
+      </div>
+      <div class="f2">
+        <div class="fg">
+          <label class="fl">Slug (auto-generated if blank)</label>
+          <input type="text" class="fi" id="art-slug" placeholder="unpaid-internship-silence">
+          <p style="font-size:11px;color:var(--ink-5);margin-top:.3rem">URL: article.html?slug=[value]</p>
+        </div>
+        <div class="fg">
+          <label class="fl">Tags (comma-separated)</label>
+          <input type="text" class="fi" id="art-tags" placeholder="student rights, employment, press freedom">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-article')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveArticle()">Publish Article</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hot Take -->
+<div class="overlay" id="modal-take">
+  <div class="modal">
+    <div class="modal-top">
+      <h3 class="modal-title">New Hot Take</h3>
+      <button class="modal-x" onclick="closeModal('modal-take')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="take-id">
+      <div class="fg">
+        <label class="fl">The Take *</label>
+        <textarea class="fta" id="take-text" placeholder="Say it straight. No hedging."></textarea>
+      </div>
+      <div class="f2">
+        <div class="fg">
+          <label class="fl">Author</label>
+          <input type="text" class="fi" id="take-author" placeholder="First name or Anonymous">
+        </div>
+        <div class="fg">
+          <label class="fl">City</label>
+          <input type="text" class="fi" id="take-city" placeholder="City">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-take')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTake()">Publish Take</button>
+    </div>
+  </div>
+</div>
+
+<!-- Record -->
+<div class="overlay" id="modal-record">
+  <div class="modal">
+    <div class="modal-top">
+      <h3 class="modal-title">Add Fact</h3>
+      <button class="modal-x" onclick="closeModal('modal-record')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="rec-id">
+      <div class="fg">
+        <label class="fl">The Fact *</label>
+        <textarea class="fta" id="rec-fact" placeholder="State it plainly. Let the number speak."></textarea>
+      </div>
+      <div class="f2">
+        <div class="fg">
+          <label class="fl">Source *</label>
+          <input type="text" class="fi" id="rec-source" placeholder="Organisation or report name">
+        </div>
+        <div class="fg">
+          <label class="fl">Year *</label>
+          <input type="text" class="fi" id="rec-year" placeholder="2024">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-record')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRecord()">Add to Site</button>
+    </div>
+  </div>
+</div>
+
+<!-- Petition -->
+<div class="overlay" id="modal-petition">
+  <div class="modal">
+    <div class="modal-top">
+      <h3 class="modal-title">Edit Petition</h3>
+      <button class="modal-x" onclick="closeModal('modal-petition')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fg">
+        <label class="fl">Petition Title *</label>
+        <textarea class="fta" id="pet-title" style="min-height:80px" placeholder="What are we demanding?"></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">Signature Goal</label>
+        <input type="number" class="fi" id="pet-target" placeholder="25000">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-petition')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePetition()">Update Petition</button>
+    </div>
+  </div>
+</div>
+
+<!-- Submission Review -->
+<div class="overlay" id="modal-submission">
+  <div class="modal modal-lg">
+    <div class="modal-top">
+      <h3 class="modal-title">Review Submission</h3>
+      <button class="modal-x" onclick="closeModal('modal-submission')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sub-meta-block" id="submission-review-meta"></div>
+      <label class="fl">Submitted Content</label>
+      <div class="sub-content" id="submission-review-content"></div>
+      <p class="sub-divider-label">If publishing — fill in article details below</p>
+      <div class="fg">
+        <label class="fl">Published Title</label>
+        <input type="text" class="fi" id="rev-title">
+      </div>
+      <div class="f2">
+        <div class="fg">
+          <label class="fl">Author Name</label>
+          <input type="text" class="fi" id="rev-author">
+        </div>
+        <div class="fg">
+          <label class="fl">City</label>
+          <input type="text" class="fi" id="rev-city">
+        </div>
+      </div>
+      <div class="fg">
+        <label class="fl">Pull Quote (optional)</label>
+        <input type="text" class="fi" id="rev-pull" placeholder="Best one line from the piece">
+      </div>
+      <div class="f2">
+        <div class="fg">
+          <label class="fl">Date</label>
+          <input type="text" class="fi" id="rev-date" placeholder="Jan 2025">
+        </div>
+        <div class="fg">
+          <label class="fl">Editor's Pick?</label>
+          <select class="fsel" id="rev-pick">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+      </div>
+      <input type="hidden" id="rev-sub-id">
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger" onclick="rejectSubmission()">Reject</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-submission')">Cancel</button>
+      <button class="btn btn-teal" onclick="publishSubmission()">Publish →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+<!-- ── ALL LOGIC ──────────────────────────────────────────────── -->
+<script>
+/* ── UTILS ── */
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+function fmtDate(s){if(!s)return'—';try{return new Date(s).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}catch{return s;}}
+let _tt;
+function showToast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show'+(err?' err':'');
+  clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3400);
+}
+
+/* ── AUTH ── */
+async function checkExistingSession(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session)return;
+  if(!ALLOWED_EDITORS.includes(session.user.email)){await sb.auth.signOut();return;}
+  STATE.user=session.user; STATE.session=session;
+  await bootDashboard();
+}
+
+async function doLogin(){
+  const email=document.getElementById('auth-email').value.trim().toLowerCase();
+  const pass=document.getElementById('auth-pass').value;
+  const err=document.getElementById('auth-err');
+  const btn=document.getElementById('auth-btn');
+  err.textContent='';
+  if(!email||!pass){err.textContent='Enter email and password.';return;}
+  if(!ALLOWED_EDITORS.includes(email)){err.textContent='Access denied.';return;}
+  btn.disabled=true;document.getElementById('auth-btn-text').textContent='Signing in…';
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error){
+    err.textContent='Invalid credentials.';
+    btn.disabled=false;document.getElementById('auth-btn-text').textContent='Sign In →';
+    return;
+  }
+  if(!ALLOWED_EDITORS.includes(data.user.email)){
+    await sb.auth.signOut();err.textContent='Access denied.';
+    btn.disabled=false;document.getElementById('auth-btn-text').textContent='Sign In →';
+    return;
+  }
+  STATE.user=data.user;STATE.session=data.session;
+  await bootDashboard();
+}
+
+async function bootDashboard(){
+  document.getElementById('auth-btn-text').textContent='Loading…';
+  document.getElementById('topbar-email').textContent=STATE.user.email;
+  await loadAllData();
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').classList.add('active');
+  document.body.style.overflow='';
+  initApp();
+}
+
+document.getElementById('auth-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+async function doSignOut(){
+  await sb.auth.signOut();
+  STATE.user=null;STATE.session=null;
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('auth-screen').style.display='flex';
+  document.getElementById('auth-email').value='';
+  document.getElementById('auth-pass').value='';
+  document.getElementById('auth-err').textContent='';
+  document.getElementById('auth-btn').disabled=false;
+  document.getElementById('auth-btn-text').textContent='Sign In →';
+}
+
+/* ── PANEL SWITCHING ── */
+const PANEL_LABELS={
+  overview:'Dashboard',submissions:'Submissions',articles:'Articles',
+  hottakes:'Hot Takes',demands:'Demands',records:'On The Record',
+  petition:'Petition',stats:'Stats',members:'Members',
+  currentissue:'Current Issue'
+};
+
+function switchPanel(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  STATE.activePanel=name;
+  if(btn) btn.classList.add('active');
+  else document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')?.includes(`'${name}'`))n.classList.add('active');
+  });
+  document.getElementById('breadcrumb-current').textContent=PANEL_LABELS[name]||name;
+  renderPanel(name);
+}
+
+function renderPanel(name){
+  ({overview:renderOverview,submissions:renderSubmissions,articles:renderArticles,
+    hottakes:renderHotTakes,demands:renderDemands,records:renderRecords,
+    petition:renderPetition,stats:renderStats,members:renderMembers,
+    currentissue:renderCurrentIssue})[name]?.();
+}
+
+/* ── OVERVIEW ── */
+function renderOverview(){
+  const pending=STATE.submissions.filter(s=>s.status==='pending');
+  document.getElementById('ov-pending').textContent=pending.length;
+  document.getElementById('ov-articles').textContent=STATE.articles.filter(a=>a.published).length;
+  document.getElementById('ov-members').textContent=STATE.members.length;
+  document.getElementById('ov-sigs').textContent=STATE.petition_count.toLocaleString('en-IN');
+
+  document.getElementById('ov-submissions-list').innerHTML=pending.length
+    ? pending.slice(0,4).map(s=>`
+      <div class="recent-item" onclick="openReviewModal(${s.id})">
+        <p class="recent-item-title">${esc(s.name)}</p>
+        <div class="recent-item-meta">
+          <span>${esc(s.email)}</span>
+          <span class="pill pill-pending">Pending</span>
+        </div>
+      </div>`).join('')
+    : '<div class="empty"><p class="empty-text">No pending submissions</p></div>';
+
+  document.getElementById('ov-members-list').innerHTML=STATE.members.slice(0,5).map(m=>`
+    <div class="recent-item">
+      <p class="recent-item-title">${esc(m.name)}</p>
+      <div class="recent-item-meta"><span>${esc(m.city)}</span><span>${fmtDate(m.joined_at)}</span></div>
+    </div>`).join('');
+}
+
+/* ── SUBMISSIONS ── */
+function renderSubmissions(){
+  const c=document.getElementById('submissions-list');
+  const pending=STATE.submissions.filter(s=>s.status==='pending');
+  const rest=STATE.submissions.filter(s=>s.status!=='pending');
+  let html='';
+
+  if(pending.length){
+    html+=`<p class="section-lbl">Pending Review (${pending.length})</p>`;
+    html+=`<table class="tbl" style="margin-bottom:2rem"><thead><tr><th>Name</th><th>Email</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>`;
+    html+=pending.map(s=>`
+      <tr>
+        <td><span class="td-title">${esc(s.name)}</span></td>
+        <td><span class="td-meta">${esc(s.email)}</span></td>
+        <td><span class="td-meta">${fmtDate(s.submitted_at)}</span></td>
+        <td><div class="td-actions">
+          <button class="btn btn-teal btn-sm" onclick="openReviewModal(${s.id})">Review →</button>
+          <button class="btn btn-danger btn-sm" onclick="quickReject(${s.id})">Reject</button>
+        </div></td>
+      </tr>`).join('');
+    html+=`</tbody></table>`;
+  } else {
+    html+=`<div class="empty" style="margin-bottom:1.5rem"><div class="empty-icon">◎</div><p class="empty-text">No pending submissions</p></div>`;
+  }
+
+  if(rest.length){
+    html+=`<p class="section-lbl">Archive (${rest.length})</p>`;
+    html+=`<table class="tbl"><thead><tr><th>Name</th><th>Email</th><th>Submitted</th><th>Status</th><th></th></tr></thead><tbody>`;
+    html+=rest.map(s=>`
+      <tr>
+        <td><span class="td-title">${esc(s.name)}</span></td>
+        <td><span class="td-meta">${esc(s.email)}</span></td>
+        <td><span class="td-meta">${fmtDate(s.submitted_at)}</span></td>
+        <td><span class="pill pill-${s.status==='published'?'published':'rejected'}">${s.status}</span></td>
+        <td><div class="td-actions">
+          <button class="btn btn-danger btn-sm" onclick="deleteSubmission(${s.id})">Delete</button>
+        </div></td>
+      </tr>`).join('');
+    html+=`</tbody></table>`;
+  }
+  c.innerHTML=html;
+  updateBadges();
+}
+
+function openReviewModal(id){
+  const sub=STATE.submissions.find(s=>s.id===id);
+  if(!sub)return;
+  document.getElementById('rev-sub-id').value=id;
+  document.getElementById('rev-title').value=sub.name+"'s Submission";
+  document.getElementById('rev-author').value=sub.name;
+  document.getElementById('rev-city').value='';
+  document.getElementById('rev-pull').value='';
+  document.getElementById('rev-date').value=new Date().toLocaleDateString('en-IN',{month:'short',year:'numeric'});
+  document.getElementById('rev-pick').value='false';
+  document.getElementById('submission-review-meta').innerHTML=`
+    <div class="sub-meta-item"><strong>From:</strong> ${esc(sub.name)}</div>
+    <div class="sub-meta-item"><strong>Email:</strong> ${esc(sub.email)}</div>
+    <div class="sub-meta-item"><strong>Submitted:</strong> ${fmtDate(sub.submitted_at)}</div>
+    <div class="sub-meta-item"><strong>Status:</strong> <span class="pill pill-${sub.status}">${sub.status}</span></div>`;
+  document.getElementById('submission-review-content').textContent=sub.content;
+  openModal('modal-submission');
+}
+
+async function publishSubmission(){
+  const subId=parseInt(document.getElementById('rev-sub-id').value);
+  const title=document.getElementById('rev-title').value.trim();
+  const author=document.getElementById('rev-author').value.trim();
+  const city=document.getElementById('rev-city').value.trim()||'—';
+  const pull=document.getElementById('rev-pull').value.trim();
+  const date=document.getElementById('rev-date').value.trim();
+  const pick=document.getElementById('rev-pick').value==='true';
+  if(!title||!author){showToast('Title and author are required.',true);return;}
+  try{
+    const art=await dbInsertArticle({title,author,city,pull_quote:pull||null,published_at:date,is_editors_pick:pick,published:true});
+    STATE.articles.unshift(art);
+    await dbUpdateSubmissionStatus(subId,'published');
+    const s=STATE.submissions.find(x=>x.id===subId);
+    if(s)s.status='published';
+    closeModal('modal-submission');
+    renderSubmissions();
+    showToast('Published. Article is live on site.');
+  }catch(e){showToast('Error publishing. Try again.',true);}
+}
+
+async function rejectSubmission(){
+  const subId=parseInt(document.getElementById('rev-sub-id').value);
+  try{
+    await dbUpdateSubmissionStatus(subId,'rejected');
+    const s=STATE.submissions.find(x=>x.id===subId);
+    if(s)s.status='rejected';
+    closeModal('modal-submission');
+    renderSubmissions();
+    showToast('Submission rejected.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+async function quickReject(id){
+  if(!confirm('Reject this submission?'))return;
+  try{
+    await dbUpdateSubmissionStatus(id,'rejected');
+    const s=STATE.submissions.find(x=>x.id===id);
+    if(s)s.status='rejected';
+    renderSubmissions();
+    showToast('Submission rejected.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+async function deleteSubmission(id){
+  if(!confirm('Permanently delete this submission? This cannot be undone.'))return;
+  try{
+    await dbDeleteSubmission(id);
+    STATE.submissions=STATE.submissions.filter(s=>s.id!==id);
+    renderSubmissions();
+    showToast('Submission deleted.');
+  }catch(e){showToast('Error deleting. Try again.',true);}
+}
+
+/* ── ARTICLES ── */
+function renderArticles(){
+  const tbody=document.getElementById('articles-tbody');
+  if(!STATE.articles.length){
+    tbody.innerHTML=`<tr><td colspan="5"><div class="empty"><div class="empty-icon">▤</div><p class="empty-text">No articles yet</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML=STATE.articles.map(a=>`
+    <tr>
+      <td><span class="td-title">${esc(a.title)}</span></td>
+      <td><span class="td-meta">${esc(a.author)} · ${esc(a.city)}</span></td>
+      <td><span class="td-meta">${esc(a.published_at)}</span></td>
+      <td>
+        ${a.is_editors_pick?`<span class="pill pill-pick">Pick</span>`:``}
+        ${a.published?`<span class="pill pill-published">Live</span>`:`<span class="pill pill-hidden">Hidden</span>`}
+      </td>
+      <td><div class="td-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editArticle(${a.id})">Edit</button>
+        ${!a.is_editors_pick?`<button class="btn btn-gold btn-sm" onclick="setPick(${a.id})">★ Pick</button>`:''}
+        <button class="btn btn-danger btn-sm" onclick="deleteArticle(${a.id})">Delete</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+function editArticle(id){
+  const a=STATE.articles.find(x=>x.id===id); if(!a)return;
+  document.getElementById('art-id').value=id;
+  document.getElementById('art-title').value=a.title;
+  document.getElementById('art-author').value=a.author;
+  document.getElementById('art-city').value=a.city;
+  document.getElementById('art-pull').value=a.pull_quote||'';
+  document.getElementById('art-body').value=a.body||'';
+  document.getElementById('art-date').value=a.published_at;
+  document.getElementById('art-rt').value=a.reading_time||'';
+  document.getElementById('art-slug').value=a.slug||'';
+  document.getElementById('art-tags').value=a.tags||'';
+  document.getElementById('art-pick').value=String(a.is_editors_pick);
+  document.getElementById('modal-article-title').textContent='Edit Article';
+  openModal('modal-article');
+}
+
+async function saveArticle(){
+  const id=document.getElementById('art-id').value;
+  const title=document.getElementById('art-title').value.trim();
+  const author=document.getElementById('art-author').value.trim();
+  const city=document.getElementById('art-city').value.trim()||'—';
+  const pull=document.getElementById('art-pull').value.trim();
+  const body=document.getElementById('art-body').value.trim();
+  const date=document.getElementById('art-date').value.trim();
+  const rt=parseInt(document.getElementById('art-rt').value)||null;
+  const slug=document.getElementById('art-slug').value.trim()||null;
+  const tags=document.getElementById('art-tags').value.trim()||null;
+  const pick=document.getElementById('art-pick').value==='true';
+  if(!title||!author){showToast('Title and author required.',true);return;}
+  const art={title,author,city,pull_quote:pull||null,body:body||null,
+    published_at:date,is_editors_pick:pick,published:true,
+    reading_time:rt,tags,slug};
+  try{
+    if(id){
+      await dbUpdateArticle(parseInt(id),art);
+      const i=STATE.articles.findIndex(a=>a.id===parseInt(id));
+      if(i>-1)STATE.articles[i]={...STATE.articles[i],...art};
+      if(pick)STATE.articles.forEach(a=>{if(a.id!==parseInt(id))a.is_editors_pick=false;});
+    } else {
+      const newArt=await dbInsertArticle(art);
+      if(pick)STATE.articles.forEach(a=>a.is_editors_pick=false);
+      STATE.articles.unshift(newArt);
+    }
+    document.getElementById('art-id').value='';
+    document.getElementById('modal-article-title').textContent='New Article';
+    ['art-title','art-author','art-city','art-pull','art-body',
+     'art-date','art-rt','art-slug','art-tags'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('art-pick').value='false';
+    closeModal('modal-article');
+    renderArticles();
+    showToast(id?'Article updated.':'Article published.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+async function setPick(id){
+  try{
+    await dbSetEditorsPick(id);
+    STATE.articles.forEach(a=>a.is_editors_pick=a.id===id);
+    renderArticles();
+    showToast("Editor's Pick updated.");
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+async function deleteArticle(id){
+  if(!confirm('Delete this article? This cannot be undone.'))return;
+  try{
+    await dbDeleteArticle(id);
+    STATE.articles=STATE.articles.filter(a=>a.id!==id);
+    renderArticles();
+    showToast('Article deleted.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+/* ── HOT TAKES ── */
+function renderHotTakes(){
+  const tbody=document.getElementById('takes-tbody');
+  if(!STATE.hot_takes.length){
+    tbody.innerHTML=`<tr><td colspan="4"><div class="empty"><div class="empty-icon">◉</div><p class="empty-text">No hot takes yet</p></div></td></tr>`;
+    return;
+  }
+  const pubCount=STATE.hot_takes.filter(t=>t.published).length;
+  tbody.innerHTML=STATE.hot_takes.map(t=>`
+    <tr>
+      <td><span class="td-title" style="font-size:13px;font-weight:400;font-family:var(--f-ui)">${esc(t.text)}</span></td>
+      <td><span class="td-meta">${esc(t.author)} · ${esc(t.city)}</span></td>
+      <td><span class="pill pill-${t.published?'published':'hidden'}">${t.published?'Live':'Hidden'}</span></td>
+      <td><div class="td-actions">
+        <button class="btn btn-ghost btn-sm" onclick="toggleTake(${t.id},${!t.published})">${t.published?'Hide':'Publish'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTake(${t.id})">Delete</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+async function saveTake(){
+  const id=document.getElementById('take-id').value;
+  const text=document.getElementById('take-text').value.trim();
+  const author=document.getElementById('take-author').value.trim()||'Anonymous';
+  const city=document.getElementById('take-city').value.trim()||'—';
+  if(!text){showToast('The take cannot be empty.',true);return;}
+  try{
+    if(id){
+      await sb.from('hot_takes').update({text,author,city}).eq('id',parseInt(id));
+      const t=STATE.hot_takes.find(x=>x.id===parseInt(id));
+      if(t){t.text=text;t.author=author;t.city=city;}
+    } else {
+      const newTake=await dbInsertTake({text,author,city,published:true});
+      STATE.hot_takes.unshift(newTake);
+    }
+    document.getElementById('take-id').value='';
+    ['take-text','take-author','take-city'].forEach(i=>document.getElementById(i).value='');
+    closeModal('modal-take');
+    renderHotTakes();
+    showToast('Hot take published.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+async function toggleTake(id,pub){
+  try{
+    await dbToggleTake(id,pub);
+    const t=STATE.hot_takes.find(x=>x.id===id);
+    if(t)t.published=pub;
+    renderHotTakes();
+    showToast(pub?'Take is live.':'Take hidden.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+async function deleteTake(id){
+  if(!confirm('Delete this take?'))return;
+  try{
+    await dbDeleteTake(id);
+    STATE.hot_takes=STATE.hot_takes.filter(t=>t.id!==id);
+    renderHotTakes();
+    showToast('Take deleted.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+/* ── DEMANDS ── */
+function renderDemands(){
+  document.getElementById('demands-updated-input').value=STATE.demands_updated;
+  const c=document.getElementById('demands-editor');
+  c.innerHTML=STATE.demands.map(d=>`
+    <div class="demand-edit-row">
+      <span class="demand-edit-num">${esc(d.number)}</span>
+      <input class="demand-edit-input" data-demand-id="${d.id}" value="${esc(d.text)}" placeholder="Demand text">
+      <button class="btn btn-danger btn-sm" onclick="deleteDemand(${d.id})">Remove</button>
+    </div>`).join('');
+}
+
+async function saveDemands(){
+  document.querySelectorAll('[data-demand-id]').forEach(inp=>{
+    const id=parseInt(inp.dataset.demandId);
+    const d=STATE.demands.find(x=>x.id===id);
+    if(d)d.text=inp.value.trim();
+  });
+  const upd=document.getElementById('demands-updated-input').value.trim();
+  STATE.demands_updated=upd;
+  try{
+    await dbSaveDemands(STATE.demands,upd);
+    showToast('Demands saved. Site updated.');
+  }catch(e){showToast('Error saving demands.',true);}
+}
+
+async function deleteDemand(id){
+  if(!confirm('Remove this demand?'))return;
+  try{
+    await dbDeleteDemand(id);
+    STATE.demands=STATE.demands.filter(d=>d.id!==id);
+    renderDemands();
+    showToast('Demand removed.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+/* ── RECORDS ── */
+function renderRecords(){
+  const tbody=document.getElementById('records-tbody');
+  if(!STATE.records.length){
+    tbody.innerHTML=`<tr><td colspan="4"><div class="empty"><div class="empty-icon">◧</div><p class="empty-text">No facts yet</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML=STATE.records.map(r=>`
+    <tr>
+      <td><span class="td-title" style="font-size:13px;font-weight:400;font-family:var(--f-ui)">${esc(r.fact)}</span></td>
+      <td><span class="td-meta">${esc(r.source)} · ${esc(r.source_year)}</span></td>
+      <td><span class="pill pill-${r.active?'active':'hidden'}">${r.active?'Active':'Hidden'}</span></td>
+      <td><div class="td-actions">
+        <button class="btn btn-ghost btn-sm" onclick="toggleRecord(${r.id},${!r.active})">${r.active?'Hide':'Show'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteRecord(${r.id})">Delete</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+async function saveRecord(){
+  const fact=document.getElementById('rec-fact').value.trim();
+  const source=document.getElementById('rec-source').value.trim();
+  const year=document.getElementById('rec-year').value.trim();
+  if(!fact||!source){showToast('Fact and source required.',true);return;}
+  try{
+    const rec=await dbInsertRecord({fact,source,source_year:year,active:true});
+    STATE.records.unshift(rec);
+    ['rec-fact','rec-source','rec-year'].forEach(i=>document.getElementById(i).value='');
+    closeModal('modal-record');
+    renderRecords();
+    showToast('Fact added to site.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+async function toggleRecord(id,active){
+  try{
+    await dbToggleRecord(id,active);
+    const r=STATE.records.find(x=>x.id===id);
+    if(r)r.active=active;
+    renderRecords();
+    showToast(active?'Fact is live.':'Fact hidden.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+async function deleteRecord(id){
+  if(!confirm('Delete this fact?'))return;
+  try{
+    await dbDeleteRecord(id);
+    STATE.records=STATE.records.filter(r=>r.id!==id);
+    renderRecords();
+    showToast('Fact removed.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+/* ── PETITION ── */
+function renderPetition(){
+  const p=STATE.petition;
+  const el=document.getElementById('petition-view');
+  if(!p){
+    el.innerHTML='<div class="empty"><div class="empty-icon">◐</div><p class="empty-text">No active petition found</p></div>';
+    return;
+  }
+  const pct=Math.min(100,Math.round((STATE.petition_count/p.target)*100));
+  el.innerHTML=`
+    <div class="pet-view">
+      <p style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem">Active Petition</p>
+      <p class="pet-view-title">"${esc(p.title)}"</p>
+      <div class="pet-stats-row">
+        <div>
+          <div class="pet-stat-val red">${STATE.petition_count.toLocaleString('en-IN')}</div>
+          <div class="pet-stat-lbl">Signatures</div>
+        </div>
+        <div>
+          <div class="pet-stat-val gold">${p.target.toLocaleString('en-IN')}</div>
+          <div class="pet-stat-lbl">Goal</div>
+        </div>
+        <div>
+          <div class="pet-stat-val teal">${pct}%</div>
+          <div class="pet-stat-lbl">Complete</div>
+        </div>
+      </div>
+      <div class="pet-bar"><div class="pet-bar-fill" style="width:${pct}%"></div></div>
+      <p class="pet-pct">${pct}% of ${p.target.toLocaleString('en-IN')} goal</p>
+    </div>`;
+}
+
+function openPetitionEdit(){
+  document.getElementById('pet-title').value=STATE.petition?.title||'';
+  document.getElementById('pet-target').value=STATE.petition?.target||25000;
+  openModal('modal-petition');
+}
+
+async function savePetition(){
+  const title=document.getElementById('pet-title').value.trim();
+  const target=parseInt(document.getElementById('pet-target').value)||25000;
+  try{
+    await dbUpdatePetition(STATE.petition.id,title,target);
+    STATE.petition.title=title;STATE.petition.target=target;
+    closeModal('modal-petition');
+    renderPetition();
+    showToast('Petition updated.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+/* ── STATS ── */
+function renderStats(){
+  const c=document.getElementById('stats-editor');
+  c.innerHTML=`
+    <div class="stats-edit-grid" style="max-width:560px">
+      ${STATE.stats.map((s,i)=>`
+        <div class="stats-edit-row">
+          <div class="stats-edit-cell">
+            <label class="fl">Value</label>
+            <input type="text" class="fi" data-stat-id="${s.id}" data-field="value" value="${esc(s.value)}">
+          </div>
+          <div class="stats-edit-cell">
+            <label class="fl">Label</label>
+            <input type="text" class="fi" data-stat-id="${s.id}" data-field="label" value="${esc(s.label)}">
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+async function saveStats(){
+  document.querySelectorAll('[data-stat-id]').forEach(inp=>{
+    const id=parseInt(inp.dataset.statId);
+    const field=inp.dataset.field;
+    const s=STATE.stats.find(x=>x.id===id);
+    if(s)s[field]=inp.value.trim();
+  });
+  try{
+    await dbSaveStats(STATE.stats);
+    showToast('Stats saved. Site updated.');
+  }catch(e){showToast('Error saving stats.',true);}
+}
+
+/* ── MEMBERS ── */
+function renderMembers(){
+  document.getElementById('members-count-label').textContent=`${STATE.members.length} members have joined`;
+  document.getElementById('badge-members').textContent=STATE.members.length;
+  const tbody=document.getElementById('members-tbody');
+  if(!STATE.members.length){
+    tbody.innerHTML=`<tr><td colspan="4"><div class="empty"><div class="empty-icon">◑</div><p class="empty-text">No members yet</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML=STATE.members.map(m=>`
+    <tr>
+      <td><span class="td-title">${esc(m.name)}</span></td>
+      <td><span class="td-meta">${esc(m.email)}</span></td>
+      <td><span class="td-meta">${esc(m.city)}</span></td>
+      <td><span class="td-meta">${fmtDate(m.joined_at)}</span></td>
+    </tr>`).join('');
+}
+
+function exportMembers(){
+  const rows=[['Name','Email','City','Joined'],...STATE.members.map(m=>[m.name,m.email,m.city,m.joined_at])];
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='yfi-members.csv';a.click();
+  showToast('Members exported.');
+}
+
+/* ── BADGES ── */
+function updateBadges(){
+  const pending=STATE.submissions.filter(s=>s.status==='pending').length;
+  const badge=document.getElementById('badge-submissions');
+  badge.textContent=pending;
+  badge.style.display=pending?'':'none';
+  document.getElementById('badge-members').textContent=STATE.members.length;
+  document.getElementById('ov-pending').textContent=pending;
+}
+
+/* ── MODAL ── */
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')document.querySelectorAll('.overlay.open').forEach(m=>m.classList.remove('open'));
+});
+
+/* ── CURRENT ISSUE ── */
+function renderCurrentIssue(){
+  const ci=STATE.current_issue;
+  document.getElementById('ci-headline').value=ci?.headline||'';
+  document.getElementById('ci-subtext').value=ci?.subtext||'';
+  document.getElementById('ci-cta-label').value=ci?.cta_label||'See the Demands →';
+  document.getElementById('ci-cta-url').value=ci?.cta_url||'#demands';
+}
+
+async function saveCurrentIssue(){
+  const headline=document.getElementById('ci-headline').value.trim();
+  const subtext=document.getElementById('ci-subtext').value.trim();
+  const cta_label=document.getElementById('ci-cta-label').value.trim()||'See the Demands →';
+  const cta_url=document.getElementById('ci-cta-url').value.trim()||'#demands';
+  if(!headline){showToast('Headline is required.',true);return;}
+  try{
+    if(STATE.current_issue?.id){
+      await sb.from('current_issue').update({headline,subtext:subtext||null,cta_label,cta_url,updated_at:new Date().toISOString()}).eq('id',STATE.current_issue.id);
+      STATE.current_issue={...STATE.current_issue,headline,subtext,cta_label,cta_url};
+    } else {
+      const {data}=await sb.from('current_issue').insert({headline,subtext:subtext||null,cta_label,cta_url,active:true}).select().single();
+      STATE.current_issue=data;
+    }
+    showToast('Current issue updated. Site reflects change immediately.');
+  }catch(e){showToast('Error saving. Try again.',true);}
+}
+
+/* ── INIT ── */
+function initApp(){updateBadges();renderOverview();}
+document.addEventListener('DOMContentLoaded',checkExistingSession);
+</script>
+</body>
+</html>
