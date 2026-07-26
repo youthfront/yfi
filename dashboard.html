@@ -657,7 +657,10 @@ input,textarea,select{font-family:inherit;}
 const SUPABASE_URL      = 'https://anzeuwhetgqvavbjpuxd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuemV1d2hldGdxdmF2YmpwdXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4NjM5MjgsImV4cCI6MjA5NTQzOTkyOH0.46MCQ8h2D-poRKlx_G5NJlfOqzB7I4IoPZC2Q684mK0';
 
-const ALLOWED_EDITORS = ['youthfront.in@gmail.com'];
+// Access is no longer gated by a hardcoded email array. Whether a
+// login is allowed in is checked against the `team_members` table
+// in Supabase (see checkTeamMembership()) — that's enforced at the
+// database level via RLS, not just in this client-side file.
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth:{ persistSession:true, autoRefreshToken:true }
@@ -670,6 +673,7 @@ let STATE = {
   petition:null, petition_count:0,
   records:[], stats:[], members:[],
   current_issue: null,
+  team_members:[], site_config:{}, activity_log:[],
 };
 
 /* ── DB LAYER ── */
@@ -678,7 +682,8 @@ async function loadAllData() {
     {data:demands},{data:cfg},{data:submissions},
     {data:articles},{data:takes},{data:petitions},
     {data:records},{data:stats},{data:members},
-    {data:currentIssue}
+    {data:currentIssue},{data:teamMembers},{data:siteConfig},
+    {data:activityLog}
   ] = await Promise.all([
     sb.from('demands').select('*').order('number'),
     sb.from('site_config').select('value').eq('key','demands_updated').single(),
@@ -690,6 +695,9 @@ async function loadAllData() {
     sb.from('stats').select('*').order('display_order'),
     sb.from('members').select('*').order('joined_at',{ascending:false}),
     sb.from('current_issue').select('*').eq('active',true).single(),
+    sb.from('team_members').select('*').order('added_at'),
+    sb.from('site_config').select('*'),
+    sb.from('activity_log').select('*').order('created_at',{ascending:false}).limit(20),
   ]);
   STATE.demands         = demands   ||[];
   STATE.demands_updated = cfg?.value||'January 2025';
@@ -701,6 +709,10 @@ async function loadAllData() {
   STATE.stats           = stats     ||[];
   STATE.members         = members   ||[];
   STATE.current_issue   = currentIssue||null;
+  STATE.team_members    = teamMembers||[];
+  STATE.activity_log    = activityLog||[];
+  STATE.site_config     = {};
+  (siteConfig||[]).forEach(row=>{ STATE.site_config[row.key]=row.value; });
   if(STATE.petition){
     const {data:cnt}=await sb.from('petition_counts')
       .select('signature_count').eq('petition_id',STATE.petition.id).single();
@@ -741,6 +753,15 @@ async function dbUpdatePetition(id,title,target){ await sb.from('petitions').upd
 async function dbSaveStats(stats){ await sb.from('stats').upsert(stats.map(s=>({id:s.id,label:s.label,value:s.value,display_order:s.display_order}))); }
 async function dbDeleteSubmission(id){ await sb.from('submissions').delete().eq('id',id); }
 async function dbUpdateSubmissionStatus(id,status){ await sb.from('submissions').update({status}).eq('id',id); }
+
+async function dbAddTeamMember(id,name,email){
+  const {data,error}=await sb.from('team_members').insert({id,name,email}).select().single();
+  if(error) throw error; return data;
+}
+async function dbRemoveTeamMember(id){ await sb.from('team_members').delete().eq('id',id); }
+async function dbSetSectionVisible(key,value){
+  await sb.from('site_config').upsert({key,value:String(value)});
+}
 </script>
 
 <!-- ── AUTH SCREEN ───────────────────────────────────────────── -->
@@ -837,6 +858,15 @@ async function dbUpdateSubmissionStatus(id,status){ await sb.from('submissions')
         <button class="nav-item" onclick="switchPanel('members',this)" data-label="Members">
           <span class="nav-icon">◑</span> Members
           <span class="nav-badge teal" id="badge-members">0</span>
+        </button>
+      </div>
+      <div class="sidebar-section">
+        <p class="sidebar-group-label">Admin</p>
+        <button class="nav-item" onclick="switchPanel('sitecontrol',this)" data-label="Site Control">
+          <span class="nav-icon">◈</span> Site Control
+        </button>
+        <button class="nav-item" onclick="switchPanel('team',this)" data-label="Team">
+          <span class="nav-icon">◑</span> Team
         </button>
       </div>
     </nav>
@@ -1054,6 +1084,73 @@ async function dbUpdateSubmissionStatus(id,status){ await sb.from('submissions')
               <strong style="color:var(--ink-2)">Note:</strong> Only one active issue is shown at a time. Saving replaces the current one. This section is issue-fluid by design — update it whenever the political moment shifts.
             </p>
           </div>
+        </div>
+      </div>
+
+      <!-- SITE CONTROL -->
+      <div class="panel" id="panel-sitecontrol">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">Site Control</h2>
+            <p class="panel-sub">Show or hide entire homepage sections — takes effect immediately, no code changes</p>
+          </div>
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr><th>Section</th><th>Status</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="sitecontrol-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- TEAM -->
+      <div class="panel" id="panel-team">
+        <div class="panel-hd">
+          <div class="panel-hd-left">
+            <h2 class="panel-title">Team</h2>
+            <p class="panel-sub">People who can log in to this dashboard</p>
+          </div>
+        </div>
+
+        <div style="background:var(--bg-2);border:1px solid var(--rule-med);padding:1rem 1.25rem;margin-bottom:1.5rem;max-width:640px">
+          <p style="font-size:12px;color:var(--ink-4);line-height:1.6">
+            <strong style="color:var(--ink-2)">To add someone:</strong> first create their login in
+            Supabase → Authentication → Users → Invite user (by email). Copy the <strong>User UID</strong>
+            shown there, then add it below along with their name and email. Everyone added here has
+            equal, full access to this dashboard — there are no permission tiers yet.
+          </p>
+        </div>
+
+        <div class="f2" style="max-width:720px;align-items:end;margin-bottom:1.5rem">
+          <div class="fg">
+            <label class="fl">Name</label>
+            <input type="text" class="fi" id="team-name" placeholder="Full name">
+          </div>
+          <div class="fg">
+            <label class="fl">Email</label>
+            <input type="email" class="fi" id="team-email" placeholder="name@example.com">
+          </div>
+        </div>
+        <div class="f2" style="max-width:720px;align-items:end;margin-bottom:1.5rem">
+          <div class="fg" style="flex:1">
+            <label class="fl">User UID (from Supabase Auth → Users)</label>
+            <input type="text" class="fi" id="team-uid" placeholder="e.g. 3f1a9c2e-...">
+          </div>
+          <button class="btn btn-primary" onclick="addTeamMember()">+ Add to Team</button>
+        </div>
+
+        <table class="tbl">
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>Added</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="team-tbody"></tbody>
+        </table>
+
+        <div class="recent-card" style="margin-top:2rem;max-width:720px">
+          <div class="recent-card-hd">
+            <span class="recent-card-title">Recent Activity</span>
+          </div>
+          <div id="activity-log-list"></div>
         </div>
       </div>
 
@@ -1283,11 +1380,21 @@ function showToast(msg,err=false){
   clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3400);
 }
 
-/* ── AUTH ── */
+/* ── AUTH ──
+   Access is checked against the team_members table, not a
+   hardcoded list — enforced at the database level via RLS, so this
+   check is a UX nicety, not the real security boundary. Someone who
+   isn't in team_members gets signed straight back out even if their
+   Supabase Auth login succeeds. */
+async function isTeamMember(userId){
+  const {data}=await sb.from('team_members').select('id').eq('id',userId).single();
+  return !!data;
+}
+
 async function checkExistingSession(){
   const {data:{session}}=await sb.auth.getSession();
   if(!session)return;
-  if(!ALLOWED_EDITORS.includes(session.user.email)){await sb.auth.signOut();return;}
+  if(!(await isTeamMember(session.user.id))){await sb.auth.signOut();return;}
   STATE.user=session.user; STATE.session=session;
   await bootDashboard();
 }
@@ -1299,7 +1406,6 @@ async function doLogin(){
   const btn=document.getElementById('auth-btn');
   err.textContent='';
   if(!email||!pass){err.textContent='Enter email and password.';return;}
-  if(!ALLOWED_EDITORS.includes(email)){err.textContent='Access denied.';return;}
   btn.disabled=true;document.getElementById('auth-btn-text').textContent='Signing in…';
   const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
   if(error){
@@ -1307,8 +1413,8 @@ async function doLogin(){
     btn.disabled=false;document.getElementById('auth-btn-text').textContent='Sign In →';
     return;
   }
-  if(!ALLOWED_EDITORS.includes(data.user.email)){
-    await sb.auth.signOut();err.textContent='Access denied.';
+  if(!(await isTeamMember(data.user.id))){
+    await sb.auth.signOut();err.textContent='Access denied. Ask an existing team member to add you.';
     btn.disabled=false;document.getElementById('auth-btn-text').textContent='Sign In →';
     return;
   }
@@ -1345,7 +1451,7 @@ const PANEL_LABELS={
   overview:'Dashboard',submissions:'Submissions',articles:'Articles',
   hottakes:'Hot Takes',demands:'Demands',records:'On The Record',
   petition:'Petition',stats:'Stats',members:'Members',
-  currentissue:'Current Issue'
+  currentissue:'Current Issue',sitecontrol:'Site Control',team:'Team'
 };
 
 function switchPanel(name,btn){
@@ -1365,7 +1471,8 @@ function renderPanel(name){
   ({overview:renderOverview,submissions:renderSubmissions,articles:renderArticles,
     hottakes:renderHotTakes,demands:renderDemands,records:renderRecords,
     petition:renderPetition,stats:renderStats,members:renderMembers,
-    currentissue:renderCurrentIssue})[name]?.();
+    currentissue:renderCurrentIssue,sitecontrol:renderSiteControl,
+    team:renderTeam})[name]?.();
 }
 
 /* ── OVERVIEW ── */
@@ -1916,6 +2023,97 @@ async function saveCurrentIssue(){
     }
     showToast('Current issue updated. Site reflects change immediately.');
   }catch(e){showToast('Error saving. Try again.',true);}
+}
+
+/* ── SITE CONTROL ── */
+const SECTION_LABELS={
+  section_current_issue:{label:'Current Issue',note:'The confrontational headline near the top of the homepage'},
+  section_demands:      {label:'Demands',      note:'The numbered list of demands'},
+  section_records:      {label:'On The Record',note:'Sourced facts section'},
+  section_hot_takes:    {label:'Hot Takes',    note:'Up to 3 short takes'},
+  section_dispatches:   {label:'Dispatches',   note:'Published articles list'},
+  section_petition:     {label:'Petition',     note:'Active petition + signature form'},
+  section_join:         {label:'Join',         note:'Email signup at the bottom of the page'},
+};
+
+function renderSiteControl(){
+  const tbody=document.getElementById('sitecontrol-tbody');
+  tbody.innerHTML=Object.keys(SECTION_LABELS).map(key=>{
+    const on=(STATE.site_config[key]??'true')==='true';
+    const meta=SECTION_LABELS[key];
+    return `
+    <tr>
+      <td><span class="td-title">${esc(meta.label)}</span><br><span class="td-meta">${esc(meta.note)}</span></td>
+      <td><span class="pill pill-${on?'active':'hidden'}">${on?'Visible':'Hidden'}</span></td>
+      <td><div class="td-actions">
+        <button class="btn btn-ghost btn-sm" onclick="toggleSection('${key}',${!on})">${on?'Hide from site':'Show on site'}</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function toggleSection(key,value){
+  try{
+    await dbSetSectionVisible(key,value);
+    STATE.site_config[key]=String(value);
+    renderSiteControl();
+    showToast(value?'Section is now visible on site.':'Section hidden from site.');
+  }catch(e){showToast('Error. Try again.',true);}
+}
+
+/* ── TEAM ── */
+function renderTeam(){
+  const tbody=document.getElementById('team-tbody');
+  if(!STATE.team_members.length){
+    tbody.innerHTML=`<tr><td colspan="4"><div class="empty"><div class="empty-icon">◑</div><p class="empty-text">No team members found</p></div></td></tr>`;
+  } else {
+    tbody.innerHTML=STATE.team_members.map(m=>`
+      <tr>
+        <td><span class="td-title">${esc(m.name)}</span></td>
+        <td><span class="td-meta">${esc(m.email)}</span></td>
+        <td><span class="td-meta">${fmtDate(m.added_at)}</span></td>
+        <td><div class="td-actions">
+          ${STATE.team_members.length>1?`<button class="btn btn-danger btn-sm" onclick="removeTeamMember('${m.id}')">Remove</button>`:''}
+        </div></td>
+      </tr>`).join('');
+  }
+
+  const list=document.getElementById('activity-log-list');
+  if(!STATE.activity_log.length){
+    list.innerHTML='<div class="empty"><p class="empty-text">No activity yet</p></div>';
+    return;
+  }
+  const byId={};STATE.team_members.forEach(m=>byId[m.id]=m.name);
+  const actionWord={INSERT:'added',UPDATE:'edited',DELETE:'deleted'};
+  list.innerHTML=STATE.activity_log.map(a=>`
+    <div class="recent-item">
+      <p class="recent-item-title">${esc(byId[a.actor_id]||'Someone')} ${actionWord[a.action]||a.action.toLowerCase()} an item in ${esc(a.table_name.replace('_',' '))}</p>
+      <div class="recent-item-meta"><span>${fmtDate(a.created_at)}</span></div>
+    </div>`).join('');
+}
+
+async function addTeamMember(){
+  const name=document.getElementById('team-name').value.trim();
+  const email=document.getElementById('team-email').value.trim().toLowerCase();
+  const uid=document.getElementById('team-uid').value.trim();
+  if(!name||!email||!uid){showToast('Name, email, and UID are all required.',true);return;}
+  try{
+    const m=await dbAddTeamMember(uid,name,email);
+    STATE.team_members.push(m);
+    ['team-name','team-email','team-uid'].forEach(i=>document.getElementById(i).value='');
+    renderTeam();
+    showToast(`${name} can now log in to the dashboard.`);
+  }catch(e){showToast('Error adding team member. Check the UID is correct.',true);}
+}
+
+async function removeTeamMember(id){
+  if(!confirm('Remove this person\'s dashboard access?'))return;
+  try{
+    await dbRemoveTeamMember(id);
+    STATE.team_members=STATE.team_members.filter(m=>m.id!==id);
+    renderTeam();
+    showToast('Access removed.');
+  }catch(e){showToast('Error. Try again.',true);}
 }
 
 /* ── INIT ── */

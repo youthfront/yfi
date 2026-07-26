@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>YouthFront India — Youth Politics, Essays & Petitions</title>
-<meta name="description" content="YouthFront India is an independent youth-led movement publishing essays, demands and petitions on India's most urgent political failures — written by Indians under 30. No party. No sponsor. No softening.">
+<title>YouthFront India</title>
+<meta name="description" content="YouthFront India is an independent youth-led movement publishing essays, demands and petitions on India's most urgent political failures. written by Indians under 30. No party. No sponsor.">
 <meta name="keywords" content="youth politics india, student rights india, press freedom india, youthfront india, indian youth movement, campus politics india">
 <meta name="author" content="YouthFront India">
 <meta name="robots" content="index, follow">
@@ -23,8 +23,8 @@
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@youthfrontindia">
-<meta name="twitter:title" content="YouthFront India — Youth Politics, Essays & Petitions">
-<meta name="twitter:description" content="India's youth-led movement platform. No party. No sponsor. No softening.">
+<meta name="twitter:title" content="YouthFront India">
+<meta name="twitter:description" content="India's youth-led movement platform. No party. No sponsor.">
 <meta name="twitter:image" content="https://youthfrontindia.pages.dev/og-image.jpg">
 
 <script type="application/ld+json">
@@ -1264,7 +1264,7 @@ footer{background:var(--ink);padding:3rem 0 2rem;}
       </div>
       <div class="foot-about">
         <p class="foot-col-head">About</p>
-        <p>YouthFront India is an independent editorial platform. We are not affiliated with any political party and accept no corporate funding. Every piece carries a name and a city.</p>
+        <p>YouthFront India is an independent editorial platform. We are not affiliated with any political party and accept no corporate funding.</p>
         <p style="margin-top:.75rem;color:rgba(246,241,232,.2);">Est. 2026 · New Delhi, India</p>
       </div>
     </div>
@@ -1284,10 +1284,10 @@ footer{background:var(--ink);padding:3rem 0 2rem;}
     </div>
     <div class="modal-body">
       <div class="guidelines-box">
-        <p><strong>What we publish:</strong> Specific, argued, honest — on issues that affect Indians under 30.</p>
+        <p><strong>What we publish:</strong> Specific, argued, honest, on issues that affect Young Indians.</p>
         <ul>
           <li>600–1500 words. Longer if it earns the length.</li>
-          <li>Any issue — student rights, employment, climate, press freedom, human rights.</li>
+          <li>Any issue. student rights, employment, climate, press freedom, human rights.</li>
           <li>Real name and city. No anonymous submissions.</li>
           <li>We respond within 7 days. You approve all edits before publication.</li>
         </ul>
@@ -1340,12 +1340,39 @@ function toast(msg, err=false){
 }
 
 /* ── BOOT ── */
+/* ── SITE CONTROL ──
+   Maps a site_config key to the homepage section it controls.
+   Dashboard's "Site Control" panel writes these keys; we read them
+   here at boot to decide whether to render the section at all. */
+const SECTION_ELEMENTS={
+  section_current_issue: 'issue-section',
+  section_demands:       'demands',
+  section_records:       'record',
+  section_hot_takes:     'takes',
+  section_dispatches:    'dispatches',
+  section_petition:      'petition',
+  section_join:          'join',
+};
+
+function applySectionVisibility(configRows){
+  const cfg={};
+  (configRows||[]).forEach(row=>{ cfg[row.key]=row.value; });
+  Object.entries(SECTION_ELEMENTS).forEach(([key,elId])=>{
+    const el=document.getElementById(elId);
+    if(!el) return;
+    // Default to visible if the flag is missing entirely.
+    const visible=(cfg[key]??'true')==='true';
+    el.style.display=visible?'':'none';
+  });
+}
+
 async function boot(){
   const [
     {data:demands}, {data:cfg},
     {data:articles}, {data:takes},
     {data:records},  {data:stats},
-    {data:petitions}, {data:currentIssue}
+    {data:petitions}, {data:currentIssue},
+    {data:siteConfig}
   ] = await Promise.all([
     sb.from('demands').select('*').eq('active',true).order('number'),
     sb.from('site_config').select('value').eq('key','demands_updated').single(),
@@ -1355,6 +1382,7 @@ async function boot(){
     sb.from('stats').select('*').order('display_order'),
     sb.from('petitions').select('*').eq('active',true).limit(1),
     sb.from('current_issue').select('*').eq('active',true).single(),
+    sb.from('site_config').select('key,value'),
   ]);
 
   renderHero(articles||[], currentIssue||null, stats||[]);
@@ -1365,6 +1393,7 @@ async function boot(){
   renderTakes(takes||[]);
   renderDispatches(articles||[]);
   renderStats(stats||[]);
+  applySectionVisibility(siteConfig);
 
   const pet = (petitions||[])[0]||null;
   if(pet){
@@ -1437,7 +1466,7 @@ function renderHero(articles, ci, stats){
   if(ci && ci.subtext){
     subtext.innerHTML = esc(ci.subtext).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
   } else {
-    subtext.innerHTML = `Independent essays, demands and petitions on India's most urgent political failures — written by Indians under 30. <strong>No party. No sponsor. No softening.</strong>`;
+    subtext.innerHTML = `Independent essays, demands and petitions on India's most urgent political failures — written by Indians under 30. <strong>No party. No sponsor.</strong>`;
   }
 
   // Actions
